@@ -1,0 +1,37 @@
+pyenv - позволяет устанавливать различные версии python для виртуальных средств
+export PATH=/home/mick/.local/bin:$PATH - добавление пути к запускающему файлу в переменную окружения PATH ( в данном случае - это путь к pipenv. При установке этого пакета выводилось сообщение 'WARNING: The scripts pipenv and pipenv-resolver are installed in '/home/mick/.local/bin' which is not on PATH. Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.').
+pipenv install --python 2.7 - устанавливает эту версию python (если она уже есть на компе и пути к ней известны - можно проверить командой whereis python)
+установка pipenv в pycharm сложна тем, что pip и pip3 - ставят разные pipenv и версии python. 
+Решается так:
+Прежде всего, надо указать нужный интерпретатор: pipenv --python3. Далее есть варианты. 
+Вариант 1) (нелучший, один раз помог) в терм pycharm вводится путь PATH=/home/mick/.local/bin:$PATH, после чего идет активация pipenv shell и установка пакетов (можно и наоборот)
+Вариант 2) (лучше, так как понятнее) сносим pipenv (pip3 uninstall pipenv) -> сносим virtualenv (pip3 uninstall virtualenv) -> ставим pipenv и активируем его (pip3 install pipenv, pipenv shell)
+Вариант 3) сначала вводим путь из варианта 1, потом pipenv shell
+Вариант 4) (самый правильный))) - создать файл .bashrc и в него прописать путь к новому pipenv (это постоянное изменение, так как объявления переменных, приведенные выше, слетают с каждой загрузкой)
+pipenv --rm - удаление виртуальной среды
+можно и так - export PATH=$PATH:/home/mick/.local/lib/python3.8/site-packages
+pipenv lock - создать или обновить файл Pipfile.lock
+
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+import re
+import sys
+from pipenv import cli
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(cli())
+
+import re
+import sys
+from pkg_resources import load_entry_point
+
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
+    sys.exit(
+        load_entry_point('pipenv==2020.11.15', 'console_scripts', 'pipenv')()
+    )
+
+
+
+
+
