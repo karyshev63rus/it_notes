@@ -760,7 +760,7 @@ git config rerere.enabled true
 git revert @ - смотрит, какие изменения сделаны в указанном коммите (например, текущем)
 		и создает коммит с противоположными изменениями
 
-
+Добавление удаленного репозитория в локальный репозиторий с использованием ssh-ключа- git remote add origin git@github.com:karyshev63rus/test_ssh_key.git
 
 
 
