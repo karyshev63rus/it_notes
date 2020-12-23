@@ -388,3 +388,9 @@ PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u \[\[\033[01;34m\]\w\[\0
 
 пользовательский фон терминала имеет цветовой номер #042433
 
+ps aux | grep mick | cut -d ' ' -f 2-10 - выведет номера процессов, запущенных от имени пользователя mick
+
+ps aux | firefox | cut -d ' ' -f 2-10 > pid_firefox; for i in $(cat  pid_firefox); do kill $i; done  - определяем  номера процессов, связанных с программой firefox, и убиваем их
+
+
+
