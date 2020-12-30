@@ -173,7 +173,7 @@ services:
 потом от него запускается контейнер):
 docker-compose up
 
-docker-compose down --rmi all - удаление docler-compose файлов
+docker-compose down --rmi all - удаление docker-compose файлов
 
 
 
