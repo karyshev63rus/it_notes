@@ -1,0 +1,164 @@
+Основа конспекта - книжка Willam S. Vincent 
+       "Django for professionals".
+-------------------------------------------
+Здесь будут указаны основные этапы построения django-проекта bookstore от создания виртуальной среды и до деплоя на Heroku.
+
+
+Главы 1. Docker, 2. Postgresql, 3. Bookstore Project
+----------------------------------------------------
+pip install pipenv
+
+mkdir bookstore &&  cd bookstore
+
+pipenv install django==3.1 
+
+pipenv shell 
+
+django-admin startproject bookstore
+
+./manage.py migrate
+
+./manage.py runserver
+
+
+touch Dockerfile
+
+///////////////////////////////////////////////////////
+# Pull base image
+
+FROM python:3.8
+
+
+# Set environment varialbes
+
+ENV PYTHONDONOTWRITEBYTECODE 1
+
+ENV PYTHONUNBUFFERED 1
+
+
+# Set a directory
+
+WORKDIR /code
+
+
+# Install dependencies
+
+COPY Pipfile Pipfile.lock /code/
+
+RUN pip install pipenv && pipenv install --system
+
+	
+# Copy project
+
+COPY . /code/
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+docker build . 
+docker build -t <imagename> .
+
+
+pipenv install psycopg2-binary
+
+touch docker-compose.yml
+
+////////////////////////////////////////////////////////////////
+	version: '3.8'
+
+services:
+	
+  web:
+    build: .
+    command: python /code/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+
+  db:
+    image: postgres:12	
+    volumes:
+      - postrges_data:/var/lib/postgresql/data/
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+
+  volumes:
+    postgres_data:
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+docker-compose up # --build
+docker-compose up -d # --build
+docker-compose up -f <docker-compose filename> - d # --build
+docker-compose logs
+docker-compose exec # web python manage.py makemigrations
+docker-compose exec # web pipenv install psycopg2-binary
+docker-compose down
+
+Создаем кастомную модель пользователя
+-------------------------------------
+Обязательное условие создания - ОТСУТСТВИЕ ЛЮБЫХ МИГРАЦИЙ С НАЧАЛА ПРОЕКТА!
+0. создали проект, можно запустить сервер и указать конфиги postgres
+
+1. docker-compose exec web python manage.py [далее - DC] startapp users
+
+2. #  users/models.py
+...
+from django.contrib.auth.models import AbstractUser
+
+class CustomUser(AbstractUser):
+    pass
+
+3. # settings.py
+INSTALLED_APPS = [
+...
+'users.apps.UsersConfig',
+...
+]
+
+AUTH_USER_MODEL = 'users.Customuser'
+
+и только теперь производим миграцию
+DC makemigrations users
+DC migrate
+
+4. # users/forms.py
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = get_user_model()
+        fields = ('email', 'username',)
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = get_user_model()
+        fields = ('email', 'username')
+
+5. # users/admin.py
+...
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+
+from .forms import CustomUserCreationForm, CustomUserChangeForm 
+
+CustomUser = get_user_model()
+
+class CustomUserAdmin(UserAdmin):
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
+    model = CustomUser
+    list_display = ['email', 'username']
+
+admin.site.register(CustomUser, CustomUserAdmin)
+
+6. DC crearesuperuser
+7. заходим на http://127.0.0.1:8000/admin и видим кастомную панель админа
+
+
+
+
+
+
+
