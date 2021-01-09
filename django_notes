@@ -4,7 +4,7 @@
 Здесь будут указаны основные этапы построения django-проекта bookstore от создания виртуальной среды и до деплоя на Heroku.
 
 
-Главы 1. Docker, 2. Postgresql, 3. Bookstore Project
+ГЛАВЫ: 1. Docker, 2. Postgresql, 3. Bookstore Project
 ----------------------------------------------------
 pip install pipenv
 
@@ -100,7 +100,7 @@ docker-compose down
 Обязательное условие создания - ОТСУТСТВИЕ ЛЮБЫХ МИГРАЦИЙ С НАЧАЛА ПРОЕКТА!
 0. создали проект, можно запустить сервер и указать конфиги postgres
 
-1. docker-compose exec web python manage.py [далее - DC] startapp users
+1. docker-compose exec web python manage.py [далее - DCPM] startapp users
 
 2. #  users/models.py
 ...
@@ -119,8 +119,8 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'users.Customuser'
 
 и только теперь производим миграцию
-DC makemigrations users
-DC migrate
+DCPM makemigrations users
+DCPM migrate
 
 4. # users/forms.py
 from django.contrib.auth import get_user_model
@@ -153,8 +153,380 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.register(CustomUser, CustomUserAdmin)
 
-6. DC crearesuperuser
-7. заходим на http://127.0.0.1:8000/admin и видим кастомную панель админа
+6. DCPM crearesuperuser
+7. заходим на http://127.0.0.1:8000/admin и видим "кастомную" панель админа
+
+
+ГЛАВЫ: 4. Pages App, 5. Registration, 6. Static Assets
+------------------------------------------------------
+Для хранения  шаблона заглавной страницы создаем папку templates в корне проекта и отражаем это в конфигах (все это в рамках приложения Pages App)
+
+# settings.py
+...
+TEMPLATES = [
+    {
+        ...
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        ...
+    }
+]
+...
+
+# views.py
+from django.views.generic import TemplateView
+
+class HomePageView(TemplateView):
+    template_name = 'home.html'
+
+Система регистрации посетителей сайта (БАЗОВЫЙ вариант)
+-------------------------------------------------------
+Основываемся на предустановленном приложении django.contrib.auth; здесь есть множество маршрутов для операций по аутентификации пользователей, например (соответственно, путь и имя пути к соответствующему контроллеру):
+accounts/login/ [name='login']
+account/logout/ [name='logout']
+...
+account/reset/done/ [name='password_reset_complete']
+
+Явно указываем пути
+# urls.py
+...
+urlpatterns = [
+    ...
+    path('accounts/', include('django.contrib.auth.urls')),
+    ...
+]
+...
+
+Соответственно, разработчиками уже написано
+# django/contrib/auth/urls.py
+...
+urlspatterns = [
+    path('login/', views.LoginView.as_view(), name='login'),
+    ...
+    path('reset/done/', views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+]
+...
+
+В шаблоне заглавной страницы указываем релевантную (правильно?))) ссылку
+# home.html
+...
+{% if user.is_authenticated %}
+  Hi, {{ user.name }}!
+ <a href="{% url 'logout'  %}">Log Out</a>
+{% else %}
+  <p>You are not logged in</p>
+ <a href="{% url 'login'  %}">Log In</a>
+{% endif %}
+...
+
+Шаблоны для аутентификации здесь надо создавать самостоятельно (получается,что уже есть готовые формы в предустановленном приложении, которые и используют данные шаблоны), например:
+# templates/registration/login.html
+...
+<form method='post'>
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type='submit'>Log in</button>
+</form>
+...
+
+После операций  по аутентификации, пользователя надо перенаправить на какую-то страницу, например
+#  settings.py
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+
+СОБСТВЕННО регистрация пользователя реализуется самим разработчиком проекта (возвращаемся к приложению users):
+1.# users/urls.py
+...
+from  .vies import SigupPageView
+
+urlpatterns = [
+    path('signup/', SignupPageView.as_view(), name='signup'),
+]
+
+2. # urls.py
+...
+   path('accounts/', include('users.urls')),
+...
+
+3. # users/views.py
+from django.urls import reverse_lazy
+from django.views import generic
+from .forms import CustomUserCreationForm
+
+class SignupPageView(generic.CreateView):
+    form_class = CustomUserCreationForm
+    success_url = reverse_lazy('login')
+    template_name = 'signup.html'
+
+4. # templates/signup.html
+...
+<form method='post'>
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type='submit'>Sign Up</button>
+</form>
+...
+
+5. # home.html
+...
+{% else %}
+    ...
+    <a href="{% url 'signup' %}">Sign Up</a>
+    ...
+...
+
+Конфигурирование статических файлов (css, images, js):
+# settings.py
+STATIC_URL = '/static/' # присутствует изначально, остальное добавляется
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),] # определяется папка, где будет храниться статические файлы
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # определяется папка, где будут собираться  файлы в результате выполнения компнды collectstatic (что требуется при развертывании приложения) 
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+] # определяется порядок поиска статистических файлов в файловой системе
+
+Добавление статических файлов в шаблон происходит через тэги
+# templates/_base.html
+{% load static %}
+<html>
+  <head>
+  ...
+  <link rel='stylesheet' href="{% static 'css/base.css' %}">
+  </head>
+  <body>
+  ...
+  <script src="{% static 'js/base.js' %}"></script>
+  </body>
+</html>
+
+# templates/home.html
+...
+{% block content %}
+    ...
+    <img class="bookcover" src="{% static 'images/django_book.jpg' %}">
+    ...
+{% endblock %}
+...
+
+Сбор статических файлов (для деплоя) в общую папку  осуществляется так
+DCMP collectstatic
+
+Устанавливаем приложение django-crispy-forms (рассматривать Bootstrap здесь пока не буду)
+# settings.py
+INSTALLED_APPS = [
+...
+'crispy_forms',
+]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+Вносим изменения в шаблоны, где используются формы (signup.html, login.html)
+{{ forms|crispy }} # как сказано в репо на github, эти crispy-фильтры "придают формам элегантность"
+
+ГЛАВА 7. Продвинутая регистрация пользователя
+---------------------------------------------
+Здесь вместо дефолтного приложения используется стороннее приложение, и его надо поставить: DCPM django-allauth (не забыть после этого пересобрать DC)
+
+1. # settings.py
+INSTALLED_APPS = [
+    ...
+    'django.contrib.sites',
+    ...
+    'allauth.account',
+]
+...
+
+LOGIN_REDIRECT_URL = 'home'
+
+ACCOUNT_LOGOUT_REDIRECT = 'home' # вместо  LOGOUT_REDIRECT_URL = 'home'
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # это уже есть изначально
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+2. DCPM migrate
+
+3. # urls.py
+    ...
+    path('accounts/', include('allauth.urls')),
+    ...
+Это приложение использует другие имена маршрутов (например, вместо login берется account_login), поэтому ниже в шаблонах их придется поменять
+
+4. # Работа с шаблонами в папке templates 
+mkdir templates/account
+mv  templates/registration/login.html templates/account/login.html
+mv  templates/signup.html templates/account/signup.html
+
+rm -r templates/registration # опционально, можно, вроде бы, и не удалять
+
+Теперь переименовываем в шаблонах имена маршрутов
+# _base.html
+используем account_signup, account_login, account_logout
+
+
+Доводим шаблоны, предоставляемые приложением allauth, до ума
+# settings.py
+...
+ACCOUNT_SESSION_REMEMBER = True # на странице по маршруту с именем account_login избавляемся от чек-бокса "Remember Me" 
+
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False # на странице по маршруту с именем account_singup избавляемся от необходимости вводить пароль дважды
+
+ACCOUNT_USERNAME_REQUIRES = False # на странице по маршруту с именем account_signup избавляемся от необходимости указывать при регистрации свое имя
+
+ACCOUNT_AUTHENTICATION_METHOD = 'email' # на странице по маршруту с именем account_signup указываем, что аутентификация производится именно по имени ящика электронной почты 
+
+ACCOUNT_EMAIL_REQUIRED = True # поле электронной почты при регистрации обязательно
+ACCOUNT_UNIQUE_EMAIL = True # определяем, что имена ящиков электронной почты должны быть уникальны,т.е. две и более записей с одинаковым именем ящика не допускается
+
+Кроме того, создается шаблон для маршрута account_logout (примерно как в account_login)
+# templates/logout.html
+...
+<form method='post' action='{% url "account_logout" %}'>
+  {% csrf_token %}
+  {{ form|crispy }}
+  <button type='submit'>Log Out</button>
+</form>
+...
+
+ГЛАВЫ: 8. Environment Variables, 9. Email
+-----------------------------------------
+Здесь предлагается указывать переменные окружения в файле docker-compose.yml: при этом говорится, что если в ключе встречается знак доллара, то он им же и экранируется, т.е. $ -> $$
+version: '3.8'
+  
+  services:
+    web:
+      ...
+      environment:
+       - SECRET_KEY=p$$s$afsfas8#fasifs+a[))sda_sdaf=-dfg
+...
+
+В самом приложении значения переменных окружения предлагается загружать так
+# settings.py
+SECRET_KEY = os.environ.get('SECRET_KEY')
+DEBUG = int(os.environment.get('DEBUG',default=0))
+
+ПРИКРУЧИВАЕМ EMAIL
+Опять же используем возможности приложения allauth - его формы сообщений, отправляемых по электронной почте для подтверждения email-адреса, указанного при регистрации на сайте (и далее кастомизируем эти формы)
+
+mkdir templates/account/email
+touch templates/account/email/email_confirmation_subject.txt 
+touch templates/account/email/email_confirmation_message.txt
+
+дефолтные варианты этих форм приводятся в книге
+
+далее определяем адрес почты отправителя (просто будет указываться в письме)
+# settings.py
+DEFAULT_FROM_EMAIL = 'admin@email.com'
+
+В письме приходит ссылка, и она должна куда-то вести, поэтому  мы создаем страницу на сайте, где можно подтвердить адрес электронной почты
+
+touch templates/account/email_confirm.html
+
+Переходим от отправления писем в консоль к отправлению писем на реальные адреса электронной почты. Для этого нужно воспользоваться услугами специальных сервисов - здесь рекомендуется SMTP - но он дружить не захотел.
+# settigs.py
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+ГЛАВА 10. Books App
+-------------------
+Здесь начинается постровение центрального приложения проекта - интернет-магазина книг (для чего содается приложение books)
+DCPM startapp books
+
+1. # books/models.py
+...
+class Book(models.Model):
+    title = models.CharField(max_length=200)
+    author = models.CharField(max_length=200)
+    price = models.DecimalField(digits=6, decimal_places=2)
+
+    def __str__(self):
+        return self.title
+
+DCPM makemigrations books
+DCPM migrate
+
+2. # books/admin.py
+...
+from .models import Book
+
+class BookAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'price',)
+
+admin.site.register(Book, BookAdmin)
+
+Заходим в админку и делаем несколько записей в таблицу книг
+
+3. Прописываем маршруты 
+# urls.py
+...
+path('books/', include('books.urls')),
+...
+
+# books/urls.py
+from .views import BookListView, BookDetailView
+...
+path('', BookListView.as_view(), name='book_list'),
+path('<int:pk>', BookDetailView.as_view(), name='book_detail'),
+...
+
+4. # books/views.py
+from django.views.generic import ListView, DetailView
+from .models import Book
+
+class BookListView(ListView):
+    model = Book
+    context_object_name = 'book_list'
+    template_name = 'books/book_list.html'
+
+class BookDetailView(DetailView):
+    model = Book
+    context_object_name = 'book'
+    template_name = 'books/book_detail.html' 
+
+5. Строим шаблоны для страниц: 1) со списком книг и 2) для отдельной книги 
+# templates/books/book_list.html
+...
+{% for book in book_list %}
+  <a href="{% url 'book_list' %}">{{ book.title }}</a>
+{% endfor %}
+
+# template/book_detail.html
+<a href="{% url 'book_detail' book.pk %}">{{ book.title }}</a>
+<p>{{ book.author }}</p>
+<p>{{ book.price }}</p>
+
+6. В файле модели Book применяем функцию (т.е. метод класса), возвращающую абсолютный путь по его названию
+# def get_absolute_url(self):
+    return reverse('book_detail', args[str(self.id)])
+
+далее, соответственно, вносим изменения в шаблон 
+<a href="{{ book.get_absolute_url }}">{{ book.title }}</a>
+
+7. Замена ID на UUID в качестве первичного ключа
+#books/models.py
+import uuid
+...
+
+class Book(models.Model):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+
+# books/urls.py
+...
+path('<uuid:pk>', BookDetailView.as_view(), name='book_detail'),
+]
+
+
+
+
+
+
+
 
 
 
