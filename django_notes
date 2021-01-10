@@ -100,7 +100,7 @@ docker-compose down
 Обязательное условие создания - ОТСУТСТВИЕ ЛЮБЫХ МИГРАЦИЙ С НАЧАЛА ПРОЕКТА!
 0. создали проект, можно запустить сервер и указать конфиги postgres
 
-1. docker-compose exec web python manage.py [далее - DCPM] startapp users
+1. docker-compose exec web python manage.py [далее - $ DCPM] startapp users
 
 2. #  users/models.py
 ...
@@ -119,8 +119,8 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'users.Customuser'
 
 и только теперь производим миграцию
-DCPM makemigrations users
-DCPM migrate
+$ DCPM makemigrations users
+$ DCPM migrate
 
 4. # users/forms.py
 from django.contrib.auth import get_user_model
@@ -153,7 +153,7 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.register(CustomUser, CustomUserAdmin)
 
-6. DCPM crearesuperuser
+6. $ DCPM crearesuperuser
 7. заходим на http://127.0.0.1:8000/admin и видим "кастомную" панель админа
 
 
@@ -324,7 +324,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 ГЛАВА 7. Продвинутая регистрация пользователя
 ---------------------------------------------
-Здесь вместо дефолтного приложения используется стороннее приложение, и его надо поставить: DCPM django-allauth (не забыть после этого пересобрать DC)
+Здесь вместо дефолтного приложения используется стороннее приложение, и его надо поставить 
+$ DCPM django-allauth (не забыть после этого пересобрать DC)
 
 1. # settings.py
 INSTALLED_APPS = [
@@ -348,7 +349,7 @@ AUTHENTICATION_BACKENDS = (
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-2. DCPM migrate
+2. $ DCPM migrate
 
 3. # urls.py
     ...
@@ -433,7 +434,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ГЛАВА 10. Books App
 -------------------
 Здесь начинается постровение центрального приложения проекта - интернет-магазина книг (для чего содается приложение books)
-DCPM startapp books
+$ DCPM startapp books
 
 1. # books/models.py
 ...
@@ -445,8 +446,8 @@ class Book(models.Model):
     def __str__(self):
         return self.title
 
-DCPM makemigrations books
-DCPM migrate
+$ DCPM makemigrations books
+$ DCPM migrate
 
 2. # books/admin.py
 ...
@@ -521,15 +522,452 @@ class Book(models.Model):
 path('<uuid:pk>', BookDetailView.as_view(), name='book_detail'),
 ]
 
+ГЛАВА 11. Reviews App.
+----------------------
+Здесь в рамках приложения Books для написания комментариев для отдельых книгсоздается модель Review. Эта модель является вторичной по отношению к моделиBook приложения Books (проблематика внешних ключей для создания связей one-to-one, one-to-many, many-to-many).  
 
+1. # books/models.py
+...
+from django.contrib.auth import get_user_model
+...
 
+class Book(models.Model):
+    ...
 
+class Review(models.Model):
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+    )
+    review = models.CharField(max_length=255)
+    author = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+    )
 
+    def __str__(self):
+        return self.review
 
+$ DCPM makemigrations books
+$ DCPM migrate
 
+2. # books/admin.py
+...
+.from models import Book, Review
 
+class Reviewline(admin.TabularInline):
+    model = Review
 
+class BookAdmin(admin.ModelAdmin):
+    inlines = [
+        ReviewInline,
+    ]
+    list_display = ('title', 'author', 'price')
 
+admin.site.reqister(Book, BookAdmin)
+
+После этого в админке на индивидуальных станицах книг появятся формы для оставления комментариев
+
+3. # templates/book/book_detail.html
+Дополняем указанный шаблон кодом для отображения комментариев
+...
+<h3>Reviews</h3>
+<ul>
+  {% for review in book.reviews.all %}
+  <li>{{ review.review }} ({{ review.author }})</li>
+  {% endfor %}
+</ul>
+...
+
+ГЛАВА 12. File/Image Uploads
+----------------------------
+Устанавливаем пакет для работы с media-файлами 
+docker-compose exec web pipenv install pillow
+
+# settings.py
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+mkdir -p media/covers
+
+#  urls.py
+...
+from django.conf.urls.static import static
+...
+
+urlpatterns = [
+    ...
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# books/models.py
+...
+class Book(models.Model):
+    ...
+    cover = models.ImageField(upload_to='covers/', blank=True)
+
+$ DCPM makemigratiosn book
+$ DCPM migrate
+
+Добавляем в шаблон проверку на наличие обложки и отображаем обложку
+# templates/book/book_detail.html
+...
+{% block content%}
+<div class='book-detail'>
+ {% if book.cover %}
+   <img class='bookcover' src='{{ book.cover.url }}' alt='{{ book.title }}'>
+ {% endif %}
+...
+
+ГЛАВА  13. Permissions
+----------------------
+Добавляем разрешение на просмотр страницы со списком книг - если посетитель сайта не авторизован, он будет перенаправлен на страницу входа (account_login) для авторизации
+# books/views.py
+from django.contrib.auth.mixins import LogitRecuiredMixin
+...
+class BookListView(LoginRequiredMixin, ListView):
+    ...
+    login_url = 'account_login'
+
+class BookDetailView(LoginRequiredMixin, DetailView):
+    ...
+    login_url = 'account_login'
+
+Добавляем получение посетителем специальных прав - на чтение всех книг
+#books/models.py
+...
+class Book(models.Model):
+    ...
+
+    class Meta:
+        permissions = [
+            ('special_status', 'read_all_books'),
+        ]
+    ...
+
+Добавляем класс-миксин для расшения функционала классов-контоллеров в плане получения разрешений
+# books/views.py
+from django.contrib.auth.mixis import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin
+)
+...
+class BookDetailView(
+   ...,
+   PermissionReguiredMixin,
+   ...):
+   ...
+
+ГЛАВА: 14. Orders with Stripe
+-----------------------------
+Создаем приложение orders для покупки книг и в его рамках подключаемся к платежной системе Stripe
+$ DCPM startapp orders
+
+# settings.py
+'orders.apps.OrdersConfig'
+
+# urls.py
+path('orders/', include('orders.urls'))
+
+# orders/urls.py
+...
+from .views import OrderPageView, charge
+...
+path('charge/', charge, name='charge'),
+path('', OrderPageView.as_view(), name='orders')
+
+# orders/views.py
+import stripe
+from django.conf import settings
+from django.contrib.auth.models import Permission
+from django.views.generic.base import TemplateView
+from django.shortcuts import render
+
+stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
+
+class OrdersPageView(TemplateView):
+    template_name = 'orders/purchase.html'
+
+    def get_context_data(self, ** kwargs):
+        context = super().get_context_data(**kwargs)
+        context['stripe_key'] = settings.STRIPE_TEST_PUBLISHABLE_KEY
+        return context
+
+def charge(request):
+    permission = Permission.objects.get(codename='special_status')
+    u = request.user
+    u.user_permissions.add(permission)
+    if request.method = 'POST':
+        charge = stripe.Charge.create(
+            amount=3900,
+            currency='usd',
+            description='Purchase all books',
+            source=request.POST['stripetoken']
+        )
+        return render (request,  'orders/charge.html')
+
+Ставим стороннее приложение stripe, регистрируемся на их сайте, получаем тестовые ключи, прописываем их названия в settings.py и значения в списке переменных среды в файле .env (как его читать, вопрос другой) 
+
+# templates/orders/purchase.html
+...
+{% block content %}
+<h1>Orders page</h1>
+<p>Buy for $39.00</p>
+<form action="{% url 'charge' %}" method="post">
+{% csrf_token %}
+<script src="https://checkout.stripe.com/checkout.js" class="stripe-button" 
+    data-key="{{ stripe_key }}"
+    data-description="All Books"
+    data-amount="3900"
+    data-locale="auto">
+</script>
+</form>
+{% endblock content%}
+
+# templates/charge.html
+...
+{% block content %} 
+<h2>Thank you for your order! You now access to <a href="{% url 'book_list' %}">All Books</a>.</h2>
+{% endblock content %} 
+
+Далее в шаблоне book_list.html вносится условие "есть/нет доступа", которое, кстати, не работает (в коде автора на гитхабе это условие в поздних главах отсутствует)
+# templates/books/book_list.html
+...
+{% if not perms.books.special_status %} 
+<a href="{% url 'orders' %}" class="btn btn-success">Purchase All books</a>
+{% endif %} 
+...
+...
+
+ГЛАВА 15. Search
+----------------
+Вводим поиск
+# books/ursl.py
+...
+from .view import ... SearchResultsListView
+...
+path('search/', SearchResultListView.as_view(), name='search_results'),
+
+# books/views.py
+...
+class SearchResultsListView(ListView):
+    model = Book
+    context_object_name = 'book_list'
+    template_name = 'books/search_results.html'
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        return Book.objects.filter(
+            Q(title__icontains=query) | Q(title__icontains=query)
+        )
+
+Создаем шаблон результатов поиска - он выводит все книги, попавшие в фильтр
+# templates/books/search_results.html
+{% block content %} 
+{% for %} 
+<div>
+<h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
+<p>Author: {{ book.author }}</p> 
+<p>Price: {{ book.price }}</p> 
+</div>
+{% endfor %} 
+{% endblock content %} 
+
+Добавляем форму поиска на домашнюю страницу
+# templates/home.html
+...
+<h1>Home page</h1>
+<form action="{% url 'search_results' %}" method="get">
+<input name="q" type="text" placeholder="Search" aria-label="Search">
+</form>
+...
+
+ГЛАВА 16. Performance
+---------------------
+Устанавливаем отладочную панель debug-toolbar, для чего ставим приложение
+$ DC exec web pipenv install django-debug-toolbar
+и вносим дополнения в файл настроек
+
+# settings.py
+INSTALLE_APPS = [
+...
+    'debug_toolbar',
+...
+]
+
+MIDDLEWARE = [
+...
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+...
+]
+
+import socket
+
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
+
+# urls.py
+...
+if settings.DEBUG:
+    import debug_toolbar:
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
+
+настраиваем кэширование
+# settings.py
+...
+MIDDLEWARE = [
+    'django.middleware.cache.UpdateCacheMiddleware', 
+    'django.middleware.cache.FetchFromCacheMiddleware', 
+]
+
+CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_SECONDS = 604800
+CACHE_MIDDLEWARE_KEY_PREFIX = ''
+...
+
+вводим индексирование для повышения производительности БД
+# books/models.py
+...
+class Book(models.Model):
+    ...
+    # db_index=True - указать индекс можно прямо в перечислении полей
+    ...
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['id'], name='id_index'),
+        ]
+        ....
+
+$ DCPM makemigrations books
+$ DCPM migrate
+
+ГЛАВА 17. Security
+------------------
+Проверка на готовность приложения к развертыванию в плане безопасности
+$ DCPM check --deploy
+Возможный ответ
+System check  identified some issues:
+
+WARNINGS:
+...
+System check identified 9 issues (0 silenced).
+
+Начинаем их решать
+# settings.py
+ENVIRONMENT = os.environ.get('ENVIRONMENT', default='development')
+
+Далее создаем два варианты docker-compose-файла: для разработки и эксплуатации (в одном из них - docker-compose-prod.yml прописываем ENVIRONMENT=production и также указываем DEBUG=0)
+
+Составляем список разрешенных интернет-адресов для хостинга
+ALLOWED_HOSTS = ['.herokkuapp.com', 'localhost', '127.0.0.1']
+Не забывать добавлять префикс к heroku.com!!!
+
+Решаем проблемы (заголовки в главе: Web Securityб SQL injenction, XXS (Cross Site Scripting), CSRF (Cross Site Request Forgery), Clickjacking Protection, HTTPS/SSL, HTTP Strict Transport Security (HSTS), Secure Cookies) путем добавления в settings.py следующих строк
+
+if ENVIRONMENT == 'production':
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 3600
+    SECURE_HSTS_INCLUDE_SUBMAINS = True
+    SECURE_HSTS_RELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+Предлагается обезопасить админку путем смены пути к ней
+# urls.py
+...
+    path('anything-but_admin/', admin.site.urls),
+...
+
+ГЛАВА 18. Deployment
+--------------------
+Для развертывания на Heroku следует установить пакет для обслуживания файлов$ DC pipenv install whitenoise
+
+# settings.py
+INSTALLED_APPS = [
+    ...
+    'django.contrib.messages', # наш пакет указывается после него
+    'whitenoise.runserver_nonstatic',
+    'django.contrib.staticfiles', # наш пакет указывается перед ним
+]
+
+MIDDLEWARE = [
+    'django.middleware.cache.UpdateCacheMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+...
+]
+
+Собираем все статические файлы в одном месте
+DCPM collectstatic
+
+Ставим пакет для wsgi-перехода (от приложения к веб-серверу) 
+$ DC pipenv install gunicorn
+
+# docker-compose.yml и docker-compose-prod.yml
+command: gumicorn <filename of our project>.wsgi -b 0.0.0.0:8000
+
+Подготовка к работе с БД (сама база автоматически на сервер не переносится и будет создана вновь, поэтому не совсем понятно назначение этого пакета)
+$ DC pipenv install dj-database-url
+
+# setttings.py 
+...
+import dj_database_url
+
+df_from_env = df_database_url.config(conn_max_age=500)
+DATABASE['default'].update(db_from_env)
+
+HEROKU
+------
+В случае heroku добавляем в настройки
+# settings.py
+...
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+...
+
+Далее создаем локальный репо и доводим его до коммита, после чего
+
+1. $ heroku login
+
+2. # heroku.yml
+setup:
+    addons:
+    - plan: heroku-postgresql
+build:
+    docker:
+        web: Dockerfile
+release:
+    image: web
+    command:
+    - python manage.py collectstatic --noinput
+run:
+    web: gunicorn bookstore_project.wsgi
+
+3. heroku create # далее можно указать желаемое название <appname> будущего сайта на ресурсе .herokuapp.com (кстати, его можно сразу же записать в settings.py)
+    
+4. На сайте heroku вводим значения необходимых переменных окружения
+
+5. Создаем или подтверждаем желание развертывать приложение в контейнере
+$ heroku stack:set container -a <appname>
+
+5. Прикручиваем БД
+$ heroku addons:create heroku-postgresql:hobby-dev -a <appname>
+
+6. Устанавливаем связь с удаленным репо на heroku и заливаем код
+$ heroku git:remote -a <appname>
+$ heroku git push heroku master
+
+7. Выполням миграции для создания таблиц в новой БД и создаем суперюзера
+$ DCPM migrate
+$ DCPM createsuperuser
+
+8. Открываем приложение в браузере
+$ heroku open -a <appname>
 
 
 
