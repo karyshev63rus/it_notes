@@ -924,6 +924,9 @@ DATABASE['default'].update(db_from_env)
 
 HEROKU
 ------
+Варианты установки на сайте самого Heroku не рассматривают случай с WSL. 
+Но выход есть - команда curl https://cli-assets.heroku.com/install.sh | sh
+
 В случае heroku добавляем в настройки
 # settings.py
 ...
