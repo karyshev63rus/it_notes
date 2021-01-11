@@ -7,7 +7,9 @@ pg_ctlcluster 12 main start - запуск сервера postgres # или та
 psql - открыть интерфейс Postgresql
 \q - закрыть интерфейс
  /var/log/postgresql/postgresql-12-main.log - логи
-
+Была проблема: программа с Postgres ставится и сервер запускается, но после перезагрузки компьютера при попытке запуска появляется ошибка - нет папки по адресу /var/run/postgresql.
+Создавал такую папку, но вываливались новые ошибки - нет доступа. В итоге пришлось создать такую папку и поменять ее владельца:
+cd /var/run/; mkdir postgresql; chown postgres:postgres postgresql - и, наконец-то, сервер стал запускаться и после перезагрузки системы (т.е. компа)
 
 sudo apt-get --purge remove postgresql postgresql-12  postgresql-client  postgresql-client-12 postgresql-client-common postgresql-common  postgresql-contrib postgresql-contrib-12 - команда для сноса всего
 
