@@ -7,3 +7,5 @@ pg_ctlcluster 12 main start - запуск сервера postgres # или та
 psql - открыть интерфейс Postgresql
 \q - закрыть интерфейс
 
+sudo apt-get --purge remove postgresql postgresql-12  postgresql-client  postgresql-client-12 postgresql-client-common postgresql-common  postgresql-contrib postgresql-contrib-12 - команда для сноса всего
+
