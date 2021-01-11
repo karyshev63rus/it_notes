@@ -6,6 +6,8 @@ su postgres (или su - postgres) - логинимся пользователе
 pg_ctlcluster 12 main start - запуск сервера postgres # или так - /etc/init.d/postgresql start
 psql - открыть интерфейс Postgresql
 \q - закрыть интерфейс
+ /var/log/postgresql/postgresql-12-main.log - логи
+
 
 sudo apt-get --purge remove postgresql postgresql-12  postgresql-client  postgresql-client-12 postgresql-client-common postgresql-common  postgresql-contrib postgresql-contrib-12 - команда для сноса всего
 
