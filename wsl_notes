@@ -1,0 +1,9 @@
+Здесь буду документировать всё (проблемы и возможности, но, видимо, в первую очередь проблемы), что касается WSL2 - линуксовой подсистемы в винде (windows subsystem linux).
+
+Проблема 1: при попытке обновить список готовых к установке пакетов из репозиториев - apt update вылезла ошибка "... GPG error: http://security.ubuntu.com/ubuntu focal-security InRelease: Couldn't create temporary file /tmp/apt ..."
+Решение: поменял права на директорию - chmod 1777 /tmp
+
+
+
+
+
