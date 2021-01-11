@@ -1,9 +1,13 @@
 Здесь будет информация о СУБД: как, что и зачем (акцент на работу с postgres в командной строке)
 ------------------------------
 
-sudo apt install posrgreql - установка СУБД Postgresql на Ubuntu
-su postgres - логинимся пользователем с именем postgres (он создается при создании БД и наделяется определенными правами)
-/etc/init.d/postgresql start - возможно, надо будет запустить сервер с БД
+sudo apt install posrgreql - установка СУБД Postgresql на Ubuntu # можно и так: sudo apt install postgresql postgresql-contrib
+su postgres (или su - postgres) - логинимся пользователем с именем postgres (он создается при создании БД и наделяется определенными правами)
 psql - открыть интерфейс Postgresql
+при этом возножно возникновение ошибки (появляется в wsl)
+psql: error: could not connect to server: No such file or directory
+        Is the server running locally and accepting
+        connections on Unix domain socket "/var/run/postgresql/.s.PGSQL.5432"?
+решение: /etc/init.d/postgresql start - возможно, надо будет запустить сервер с БД
 \q - закрыть интерфейс
 
