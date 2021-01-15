@@ -175,5 +175,6 @@ docker-compose up
 
 docker-compose down --rmi all - удаление docker-compose файлов
 
+exec -it <docker-container name> bash - войти в контейнер в командной строке (если он запущен не под bash, а, например, под python с django-проектом)
 
 
