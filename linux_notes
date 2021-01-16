@@ -398,3 +398,39 @@ ps aux | firefox | cut -d ' ' -f 2-10 > pid_firefox; for i in $(cat  pid_firefox
 
 docker images | awk '{ if($1=="<none>") print $3}' - команда выведет id всех "бесхозных" контейнеров (которые имеют имя <none>)
 
+alias python='python3'
+alias ipython='ipython3'
+alias pip='pip3'
+
+alias d='docker'
+alias dcl='docker container list'
+alias dcla='docker container list -a'
+alias di='docker images'
+alias dv='docker volume list'
+alias drm='docker rm'
+alias drmi='docker rmi'
+alias drt='docker run -it --rm -p 8000:8000'
+alias drd='docker run -d --name dc -p 8000:8000'
+alias dbt='docker build -t'
+alias dp='docker ps'
+alias dc='docker-compose'
+alias dci='docker-compose exec web pipenv install'
+alias dcm='docker-compose exec web python manage.py'
+
+alias gi='git init'
+alias gs='git status'
+alias gl='git log'
+alias ga='git add .'
+alias gc='git commit -m'
+alias gp='git push'
+alias gf='git fetch'
+alias gu='git pull'
+
+alias cv='if git remote -v 2> /dev/null | grep 63 > /dev/null; then cp /root/.ssh/config_karyshev63rus /root/.ssh/config && echo "KARYSHEV63RUS"; elif git remote -v 2> /dev/null | grep m > /dev/null; then cp /root/.ssh/config_karyshevm /root/.ssh/config && echo "KARYSHEVM"; else echo "NO YOUR REPO HERE"; fi'
+
+alias t='tree -L 1'
+alias tt='tree -L 2'
+alias ttt='tree -L 3'
+alias tttt='tree -L 4'
+alias ttttt='tree -L 5'
+
