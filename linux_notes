@@ -434,3 +434,5 @@ alias ttt='tree -L 3'
 alias tttt='tree -L 4'
 alias ttttt='tree -L 5'
 
+PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u \[\[\033[01;34m\]\w\[\033[00m\]\[\033[1;36m\]$(gitPS1)\[\033[00m\]\[\033[1;37m\]$\[\033[00m\] '
+
