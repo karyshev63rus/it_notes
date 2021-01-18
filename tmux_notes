@@ -16,6 +16,7 @@ tmux list-sessisons (tmux ls) - просмотр списка сессий
 prefix + d - отсоединение от текущей сессии (detach)
 tmux attach - присоединение к (последней из отсоединенных?) сессии
 tmux new-session -s deriv -d - открытие в фоновом режиме новой сессии под названием deriv
+prefix + s - выбор сессии (из выпадающего списка)
 tmux attach -t <sessionname> - присоединение к отрытой сессии с именем <sessionname>
 tmux kill-session -t <sessionname> - закрытие (ликвидация) сессии
 
