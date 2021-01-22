@@ -14,7 +14,7 @@ pipenv install django==3.1
 
 pipenv shell 
 
-django-admin startproject bookstore
+django-admin startproject bookstore .
 
 ./manage.py migrate
 
@@ -308,7 +308,7 @@ STATICFILES_FINDERS = [
 ...
 
 Сбор статических файлов (для деплоя) в общую папку  осуществляется так
-DCMP collectstatic
+DCPM collectstatic
 
 Устанавливаем приложение django-crispy-forms (рассматривать Bootstrap здесь пока не буду)
 # settings.py
@@ -408,7 +408,7 @@ version: '3.8'
 В самом приложении значения переменных окружения предлагается загружать так
 # settings.py
 SECRET_KEY = os.environ.get('SECRET_KEY')
-DEBUG = int(os.environment.get('DEBUG', default=0))
+DEBUG = int(os.environ.get('DEBUG',default=0))
 
 ПРИКРУЧИВАЕМ EMAIL
 Опять же используем возможности приложения allauth - его формы сообщений, отправляемых по электронной почте для подтверждения email-адреса, указанного при регистрации на сайте (и далее кастомизируем эти формы)
@@ -623,7 +623,7 @@ $ DCPM migrate
 ----------------------
 Добавляем разрешение на просмотр страницы со списком книг - если посетитель сайта не авторизован, он будет перенаправлен на страницу входа (account_login) для авторизации
 # books/views.py
-from django.contrib.auth.mixins import LogitRecuiredMixin
+from django.contrib.auth.mixins import LoginRecuiredMixin
 ...
 class BookListView(LoginRequiredMixin, ListView):
     ...
@@ -645,9 +645,9 @@ class Book(models.Model):
         ]
     ...
 
-Добавляем класс-миксин для расшения функционала классов-контоллеров в плане получения разрешений
+Добавляем класс-миксин для расширения функционала классов-контоллеров в плане получения разрешений
 # books/views.py
-from django.contrib.auth.mixis import (
+from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     PermissionRequiredMixin
 )
@@ -742,7 +742,7 @@ def charge(request):
 ГЛАВА 15. Search
 ----------------
 Вводим поиск
-# books/ursl.py
+# books/urls.py
 ...
 from .view import ... SearchResultsListView
 ...
@@ -758,7 +758,7 @@ class SearchResultsListView(ListView):
     def get_queryset(self):
         query = self.request.GET.get('q')
         return Book.objects.filter(
-            Q(title__icontains=query) | Q(title__icontains=query)
+            Q(title__icontains=query) | Q(author__icontains=query)
         )
 
 Создаем шаблон результатов поиска - он выводит все книги, попавшие в фильтр
@@ -789,7 +789,7 @@ $ DC exec web pipenv install django-debug-toolbar
 и вносим дополнения в файл настроек
 
 # settings.py
-INSTALLE_APPS = [
+INSTALLED_APPS = [
 ...
     'debug_toolbar',
 ...

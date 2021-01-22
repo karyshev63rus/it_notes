@@ -1,0 +1,96 @@
+Здесь будет инфа о мультиплексоре терминала (?!) Tmux
+-----------------------------------------------------
+prefix - по умолчанию это Ctrl+b
+
+
+ГЛАВА 1. Learnin the Basics
+---------------------------
+sudo apt install tmux - ставим Tmux из репо
+tmux -V - узнаем версию Тmux
+
+tmux - начало работы
+exit - окончание работы
+
+tmux new-session -s basic (tmux new -s basic) - открытие (создание) новой сессии под названием basic 
+tmux list-sessisons (tmux ls) - просмотр списка сессий
+prefix + d - отсоединение от текущей сессии (detach)
+tmux attach - присоединение к (последней из отсоединенных?) сессии
+tmux new-session -s deriv -d - открытие в фоновом режиме новой сессии под названием deriv
+prefix + s - выбор сессии (из выпадающего списка)
+tmux attach -t <sessionname> - присоединение к отрытой сессии с именем <sessionname>
+tmux kill-session -t <sessionname> - закрытие (ликвидация) сессии
+
+tmux new -s windows -n shell - создание сессии с названием windows и окном с названием shell
+prefix + c - создание нового окна в текущей сессии
+prefix + , - переименование текущего окна текущей сессии
+prefix + n - перемещение между окнами вперед (prefix + p - соответственно, назад)
+prefix + 0...9 - переход к окну с номером 0 (и т.д. до 9) 
+prefix + f - поиск окна по названию
+prefix + w - поиска окна в визуальном интерфейсе (выводится дисплей со списком окон)
+prefix + & - закрытие окна (задается yes/no-вопрос)
+exit - закрытие окна (если еще остались окна в текущей сессии, она продолжается)
+
+prefix + % - деление окна на панели по вертикали
+prefix + " - деление окна на панели по горизонтали
+prefix + arrows - перемещение по панелям
+prefix + o - перемещение по строкам колонок (рядам столбцов)
+prefix + q - кратковременное отображение номеров панелей
+prefix + spacebar - смена ориентации деления окна (с горизонтальной на вертикальную, и наоборот)
+prefix + Ctrl+arrows - перемещение границ панелей
+prefix + x - удаление одной из панелей (tmux спросит, удалить ли панель n, а если панель одна - закроется окно)
+
+prefix + : - активация командного режима в оболочке tmux (внизу появится ":" - строка приглашения к вводу команды)
+new-window -n console - создание нового окна с именем console
+new-window -n process "top" - создание окна process, в котором запустится команда top
+
+prefix + ? - вывод списка команд
+
+
+ГЛАВА 2. Configuring Tmux
+-------------------------
+Команды, которые начинаются с bind или setw, здесь не работают
+touch ~/.tmux.conf - создается конфигурационный файл, в который могут быть внесены следующие строки настроек
+Варианты ключей: в источниках указываются -g, на этой машине работает комбинация -gq
+set -gq mouse on - включает мышку 
+set -gq prefix C-a - переназначает клавиши активации команды (по умолчанию C-b, т.е. Ctrl + b)
+unbind C-b - освобождает комбинацию от назначенной по умолчанию команды
+source ~/.tmux.conf - перезагрузить настройки из конфигурационного файла
+set -sg escape-time 1 - включает запаздывание отправки команды (т.е. ее выполнения?)
+set -gq base-index 1 - включает  отсчет окон с 1 (по умолчанию идет с 0)
+set -gq pane-base-index 1 - то же, но в отношении панелей окна
+bind r source ~/.tmux.conf \; display "Reloaded!" - назначает на эту комбинацию клавиш команду обновления настроек (здесь не работает)
+set -gq status-fg white - делает вывод статус-бара (полосы внизу страницы) белым
+set -gq status-bg black - фон черным
+set -g status-left-length 40 - ограничивает длину вывода левой стороны статус-бара
+set -g status-left "#[fg=green]Session: #S #[fg=yellow]#I #[fg=cyan]#P" - выводит разную инфу в левой части статус-бара
+set -g status-interval 60 - переопределяет период обновленя состояния статус-бара (по умолчанию 15 секунд)
+set -g status-justify centre - центрирует список окон
+set -g status-right "#[fg-cyan]%d %b %R" - выводит дату-время в правой части статус-бара
+# bind | split-window -h - назначение комбинации клавиш на команду разделения окон на панели "одна над другой" 
+# bind - split-window -v - то же, но панели "одна рядом с другой"
+#setw -g window-status-fg cyan - красит название окна в серый цвет
+
+
+ГЛАВА 3. Scripting Cusstomized tmux Environments
+------------------------------------------------
+Скрипт для создания сессии по условию ее существования и настройки  окон и панелей (условие здесь не работает) 
+tmux has-session -t development
+if [ $? != 0 ]
+then
+  tmux new-session -s development -n editor -d
+  tmux send-keys -t development 'cd ~ /devproject' C-m
+  tmux send-keys -t development 'vim' C-m
+  tmux split-window -v -t development
+  tmux select-layout -t development main-horizontal
+  tmux send-keys -t development:1.2 'cd ~/devproject' C-m
+  tmux new-window -n console -t development
+  tmux send-keys -t development:2 'cd ~/devproject' C-m
+  tmux select-window -t development:1
+fi
+tmux attach -t development
+
+
+
+
+
+
