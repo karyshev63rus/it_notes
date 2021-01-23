@@ -1,0 +1,81 @@
+alias python='python3'
+alias ipython='ipython3'
+alias pip='pip3'
+
+alias d='docker info'
+alias dt='docker inspect'
+alias dst='docker container start'
+alias dsp='docker container stop'
+alias dk='docker container kill'
+alias dka='docker container kill $(docker ps -q)'
+alias dcl='docker container list'
+alias dcla='docker container list -a'
+alias di='docker image list'
+alias dv='docker volume list'
+alias drm='docker container rm'
+alias drma='docker container rm $(docker ps -a -q)'
+alias drmi='docker image rm'
+alias drmv='docker volume rm'
+alias dr='docker container run'
+alias drt='docker container run -it --rm -p 8000:8000'
+alias drd='docker container run -d --name dc -p 8000:8000'
+alias dbt='docker image build -t'
+alias dc='docker-compose'
+alias dci='docker-compose exec web pipenv install'
+alias dcm='docker-compose exec web python manage.py'
+
+alias gi='git init'
+alias gs='git status'
+alias rrl='if git remote -v 2> /dev/null | grep bitbucket.org:karyshev63rus > /dev/null; then cp /root/.ssh/config_BB_karyshev63rus /root/.ssh/config && echo "BITBUCKET_KARYSHEV63RUS"; elif git remote -v 2> /dev/null | grep github.com:karyshev63rus > /dev/null; then cp /root/.ssh/config_GH_karyshev63rus /root/.ssh/config && echo "GITHUB_KARYSHEV63RUS"; elif git remote -v 2> /dev/null | grep github.com:karyshevm > /dev/null; then cp /root/.ssh/config_GH_karyshevm /root/.ssh/config && echo "GITHUB_KARYSHEVM"; else echo "No links of your remote repo here"; fi'
+alias gl='git log'
+alias glo='git log --oneline'
+alias glg='git log --graph --full-history --all --color --pretty=format:"%x1b[31m%h%x09%x1b[32m%d%x1b[0m%x20%s"'
+alias gbl='git blame'
+alias ga='git add .'
+alias gc='git commit -m'
+alias gf='if git remote -v 2> /dev/null | grep bitbucket.org:karyshev63rus > /dev/null; then cp /root/.ssh/config_BB_karyshev63rus /root/.ssh/config && echo "BITBUCKET_KARYSHEV63RUS"; elif git remote -v 2> /dev/null | grep github.com:karyshev63rus > /dev/null; then cp /root/.ssh/config_GH_karyshev63rus /root/.ssh/config && echo "GITHUB_KARYSHEV63RUS"; elif git remote -v 2> /dev/null | grep github.com:karyshevm > /dev/null; then cp /root/.ssh/config_GH_karyshevm /root/.ssh/config && echo "GITHUB_KARYSHEVM"; else echo "No links of your remote repo here"; fi; git fetch'
+alias gu='if git remote -v 2> /dev/null | grep bitbucket.org:karyshev63rus > /dev/null; then cp /root/.ssh/config_BB_karyshev63rus /root/.ssh/config && echo "BITBUCKET_KARYSHEV63RUS"; elif git remote -v 2> /dev/null | grep github.com:karyshev63rus > /dev/null; then cp /root/.ssh/config_GH_karyshev63rus /root/.ssh/config && echo "GITHUB_KARYSHEV63RUS"; elif git remote -v 2> /dev/null | grep github.com:karyshevm > /dev/null; then cp /root/.ssh/config_GH_karyshevm /root/.ssh/config && echo "GITHUB_KARYSHEVM"; else echo "No links of your remote repo here"; fi; git pull'
+alias gp='if git remote -v 2> /dev/null | grep bitbucket.org:karyshev63rus > /dev/null; then cp /root/.ssh/config_BB_karyshev63rus /root/.ssh/config && echo "BITBUCKET_KARYSHEV63RUS"; elif git remote -v 2> /dev/null | grep github.com:karyshev63rus > /dev/null; then cp /root/.ssh/config_GH_karyshev63rus /root/.ssh/config && echo "GITHUB_KARYSHEV63RUS"; elif git remote -v 2> /dev/null | grep github.com:karyshevm > /dev/null; then cp /root/.ssh/config_GH_karyshevm /root/.ssh/config && echo "GITHUB_KARYSHEVM"; else echo "No links of your remote repo here"; fi; git push'
+alias gb='git branch'
+alias gh='git checkout'
+
+alias t='tree -L 1'
+alias tt='tree -L 2'
+alias ttt='tree -L 3'
+alias tttt='tree -L 4'
+alias ttttt='tree -L 5'
+
+alias tx='tmux'
+alias txa='tmux attach'
+alias txn='tmux new -s '
+alias txat='tmux attach -t '
+alias txls='tmux ls'
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+#if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+#    . /etc/bash_completion
+#fi
+
+#if [ $whoami==root ]; then cd /home; else cd .; fi
+
+gitPS1(){
+	    gitps1=$(git branch 2>/dev/null | grep '*')
+	        gitps1="${gitps1:+(${gitps1/#\* /})}"
+		    echo "$gitps1"
+	    }
+
+# PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[1;36m\]$(gitPS1)\[\033[00m\] \[\033[1;37m\]:/#\[\033[00m\] '
+
+PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u\[\033[01;34m\] \w\[\033[00m\]\[\033[1;36m\]$(gitPS1)\[\033[00m\]\[\033[1;37m\] #\[\033[00m\] '
+
