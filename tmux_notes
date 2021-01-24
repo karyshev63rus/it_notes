@@ -70,6 +70,19 @@ set -g status-right "#[fg-cyan]%d %b %R" - выводит дату-время в
 # bind - split-window -v - то же, но панели "одна рядом с другой"
 #setw -g window-status-fg cyan - красит название окна в серый цвет
 
+Обозначения хоста, сессий, окон и панелей для настройки статус-бара
+#H			Hostname of local host
+#h			Hostname of local host without the domain name
+#F			Current window flag
+#I			Current window index
+#P			Current pane index
+#S			Current session name
+#T			Current window title
+#W			Current window  name
+##			A literal #
+#(shell-command)	First line of the shell command's output
+#[attributes]		Color or attribure change
+
 
 ГЛАВА 3. Scripting Cusstomized tmux Environments
 ------------------------------------------------

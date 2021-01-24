@@ -973,13 +973,19 @@ $ DCPM createsuperuser
 $ heroku open -a <appname>
 
 
+
+
+
+
 Django. Полное руководство (Андрей Кудлай, компания "WebForMyself")
 -------------------------------------------------------------------
 Видеокурс из двух частей; краткий конспект некоторых уроков
 
 
+
 ЧАСТЬ 1. ИЗУЧЕНИЕ DJANGO
 ------------------------
+
 
 Урок 7. Модели.
 ---------------
@@ -991,6 +997,7 @@ class News(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     photo = models.ImageField(upload_to='photos/%Y/%m/%d/')
     is_published = models.Boolean(default=True)
+
 
 Урок 8. Миграции.
 -----------------
@@ -1004,6 +1011,7 @@ MEDIA_URL = '/media/'
 Alt+Enter - вызов контекстного меню с опцией "import this name"
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=MEDIA_ROOT)
+
 
 Уроки 9 и 10. Основы работы с моделями. CRUD
 --------------------------------------------
@@ -1026,6 +1034,7 @@ News.objects.get(pk=3)
 News.objects.order_by('-title')
 News.objects.exclude(title='News2'))
 
+
 Урок 11. Шаблоны
 ----------------
 # news/views.py
@@ -1039,6 +1048,7 @@ contex = {
 return render(request, template_name='news/index.html', context=context)
 # index.html
 <p>{{ item.created_at|date:"Y-m-d H:i" }}</p>
+
 
 Урок 12. Админка Django
 -----------------------
@@ -1060,13 +1070,43 @@ name = 'news'
 verbose_name = 'Новости'
 
 
+Урок 13. Связи моделей
+----------------------
+# models.py
+Вводим новую модель Category:
 
+class Category(models.Model):
+    title = models.CharField(max_length=25, db_index=True, verbose_name='Наименование категории')
 
+    def __str__(self):
+        return self.title
 
+    class Meta:
+        verbose_name = 'Категория'
+        verbore_name_plural = 'Категории'
+        ordering = ['title']
 
+Далее добавляем в модель News (теперь это вторичная модель) поле для связи с моделью Category (первичная модель):
+category = models.ForeignKey('Category', on_delete=PROTECT, defautl=null)
+При этом, если бы модель Category была бы объявлена ранее модели News, то вместо строки 'Category' надо было бы  указать ссылку Category:
+category = models.ForeignKey(Category, on_delete=PROTECT, null=True)
+При изменении модели News возникает вопрос, какими значениями дополнить это поле, ведь в таблице уже есть записи, сделанные до появления этого поля. Именно для этого указывается аргумент null=True. Попытка указания какого-либо дефолтного значения, например, default=1, приведет к проблемам с миграцией базы данных (в примере специально было произведено такое действие, вызвавшее исключение, и решением стало удаление файлов миграции, в которых отражалось создание новой, первичной таблицы и указания внешнего ключа во вторичной таблице; т.е. был произведен откат базы).
+В поле title модели Category указываем db_index=True для индексации записей, что обеспечивает ускоренный поиск по БД (поле с первичным ключом имеет такой индекс по умолчанию). 
 
+Вносим дополнения и изменения в настройку административной части:
+# admin.py
+...
+class NewsAdmin(admin.ModelAdmin):
+    ...
+    list_editable = ('is_published', ) # список редактируемых полей (вместо цветовых индикаторов появляются чек-боксы)
+    list_filter = ('is_published', 'category') # список полей для фильтрации (справа появляется боковая панель "Фильтр")
 
-
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title')
+    list_display_links = ('id', 'title')
+    search_fields = ('title',)
+...
+admin.site.register(Category, CategoryAdmin)
 
 
 
