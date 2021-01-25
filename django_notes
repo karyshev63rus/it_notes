@@ -1281,6 +1281,147 @@ mysite
 
 Глава 20. Пользовательские теги шаблона
 ---------------------------------------
+Существует два вида таких тегов: simple_tag inclusion_tag
+
+Создаем в папке приложения каталог templatetags
+Внутри этого каталога создаем __init__.py и news_tags.py
+
+# news_tags.py
+from django import template
+from news.models import Category
+
+register = template.Library()
+
+@register.simple_tag(name=get_list_categories)
+def get_categories():
+    return Category.objects.all()
+
+Теперь в шаблонах (index.html category.html) вырезаем общий код и выносим его в _sidebar.html
+# _sidebar.html
+{% load news_tags %} 
+...
+{% get_list_categories as categories %}
+{% for item in categories %}
+  <a href="{% url 'category' item.pk %}>{{ item.title }}</a>
+{% endfor %}
+...
+
+Введение данного тега позволяет убрать из кода функций views.py строки 
+categories = Category.objects.all() и 'categories': categories
+
+Для inclusion_tag создаем файл по адресу news/templates/news/list_categories.html, куда перенесем цикл из файла _sidebar.html без строки с get_list_categories:
+<div>
+  {% for item in categories %}
+    <a href="{% url 'category' item.pk %}>{{ item.title }}</a>
+  {% endfor %}
+</div>
+
+Далее пишем тег в # news_tags.py
+...
+@register.inclusion_tag('news/list_categories.html')
+def show_categories():
+    categories = Category.objects.all()
+    return {'categories': categories}
+
+Добавляем код в # sidebar.html
+...
+<br>
+{% show_categories %}
+На странице index.html должен появиться еще один список категорий
+
+Можно передать аргументы и вывести их значения в шаблонах:
+
+# news_tags.py
+...
+def show_categories(arg1="Hello", arg2="world")
+...
+    return {'categories': categories, 'arg1': agr1, 'arg2': arg2}
+
+# list_categories.html
+...
+{{ arg1}} {{ arg2 }}
+...
+
+# sidebar.html
+...
+{% show_categories arg2='User' %} - на странице появится "Hello User"
+
+
+Глава 21. Обратное разрешение адресов
+-------------------------------------
+Использование функции get_absolute_url()
+# models.py
+...
+Class News(models.Model):
+...
+    def get_absolute_url(self):
+        return reverse('views_news', kwargs={'news_id': self.pk})
+...
+Class Category(models.Model):
+...
+   def get_absolute_url(self):
+       return reverse('category', kwargs={'category_id': self.pk})
+
+Далее меняем в шаблонах выражения типа {% url 'category' item.pk %} на {{ item.absolute_url }} и {% url 'news' item.category.pk %} на {{ item.category.get_absolute_url }} 
+
+Создаем вывод индивидуальной страницы для отдельной новости 
+# urls.py
+...
+path('/news/<int:news_id>/', view_news, name='views_news'),
+...
+
+def view_news(request, news_id):
+    news_item = News.objects.get(pk=news_id)
+    return render(request, 'news/view_news.html', {'news_item': news_item})
+
+Соответственно, создается шаблон #view_news.html
+...
+{{ news_item.title }} :: {{ block.super }}
+...
+<a href="{{ news_item.category.get_absolute_url }}">{{ news_item.category }}</a>
+...
+<p>{{ item.content|safe|linebreaks }}
+...
+
+Использование функции get_object_or_404
+# views.py
+...
+def view_news(self, news_id):
+    new_item = get_object_or_404(News, pk=news_id)
+...
+
+
+Урок 22. Статические файлы
+--------------------------
+Отладочный сервер django умеет обрабатывать статические файлы, хранящиеся в различных папках, расположенных в разных частях проекта. Однако для рабочего сервера необходимо, чтобы вся статика сайта находилась в одном месте. Для этого в корне сайта создается (самим django) папка static, для чего вводятся несколько констант:
+STATIC_URL = '/static/' - добавляет префмкс к адресу статического файла
+STATIC_ROOT = os.path.join(BASE_DIR, 'static') - указывает путь к папке, в которой хранятся все статисчекие файлы; кроме того, здесь будут собираться все статические файлы при подготовке к развертываню проекта на сервере (для этого существует команда python manage.py collectstatic)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'mysite/static'),
+] - перечисляются пути к дополнительным папкам со статическими файлами (в данном примере создали такую папку static в конфигурационной папке mysite)
+В созданной по вышеуказанной команде папке static появится среди прочих папка admin, где будет собрана вся статика админки.
+Для хранения статики используется тот же вариант, что и для хранения шаблонов. Т.е. путь формируется так: <appname>/static/<appname>/<filename>
+
+Подключение статики в html-файлы осуществляется тегом 
+# base.html
+{% load static %}
+...
+<link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}"> - подключаем стили bootstrap.css из папка static, что лежит в папке приложения (так же подключаются все другие библиотеки, например, jquery)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
