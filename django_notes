@@ -1109,5 +1109,179 @@ class CategoryAdmin(admin.ModelAdmin):
 admin.site.register(Category, CategoryAdmin)
 
 
+Урок 14. Внешний вид шаблона
+----------------------------
+Подключаем bootstrap (getbootstrap.com) через cdn-ссылку (обеспечивает подкачку версии фреймворка через сеть доставки контента). Для этого просто копируем код Starter template (правый сайдбар) и вставляем в нужный html-файл (например, index.hmtl).
+Настраиваем бутстрап-шаблон под логику сайта: вносим в него директивы, тэги и фильтры. Интересен момент отображения данных, получаемых вторичной моделью от первичной модели через внешний ключ:
+# index.html
+...
+{% for item in news %}
+  <p>{{ item.category }}</p>
+...
+Здесь будет отображаться название категории, но только потому, что в первичной модели прописан метод __str__ (т.е. вторичная модель, из которой получены данные в news, получает данные по полю category от первичной модели, в которой определено это значение). Если бы этот метод не был бы определен, следовало бы обращаться с указанием поля первичной модели (item.category.title).
+
+
+Уроки 15 и 16. Директивы, теги и фильтры (Часть 1 и Часть 2)
+------------------------------------------------------------
+В шаблонах можно обращаться не только к атрибутам, но и методам
+# models.py
+...
+class News(models.Model):
+...
+    def my_func(self):
+        return 'Hello from model'
+...
+# index.html
+...
+{% for item in news%}
+  <p>{{ item.my_func }}</p>
+...
+
+Тэг {{% autoescape %}} контролирует авто-экранирование, т.к. по умолчанию html-тэги в шаблонах экранируются (в целях безопасности и  борьбы с инъекциями):
+{% autoescape off %}
+  <p class="content">{{ item.content }}</p>
+{% endautoescape %}
+
+{% comment %} Здесь закомментированный код {% endcomment %}
+
+{% cycle %} - чередует расцветку строк при выводе данных в цикле
+<h5 class="card-title" {% cycle 'text-danger' text-success' %}>...</h5>
+
+{% for item in news reversed %} - выводит объекты в обратном порядке
+  {{ forloop.counter }} - выводит номер текущей итерации цикла начиная с 1
+  ...
+  {% empty %} - выводит сообщение, если не находится искомых объектов
+  <li>Sorry, no items in the list.</li>
+{% endfor %}
+
+{% if ... %}; {% elif ... %}; {% else %}; {% endif %} - тэги ветвления
+{% if client_list and staff_list or total_list %} - код в Django
+  ...
+if (client_list and staff_list) or total_list: - обычный нативный код
+    ...
+{% lorem [count] [method] [random] %} - генерирует случайный текст
+
+{% now "jS F Y H:i" %} - показывает текущее время в указанном формате
+
+{% if item.photo %}
+  <img src="{{ item.photo.url }}" alt="">
+{% else %}
+  ### lorem images ###
+
+{{ value|date }} - фильтр (преобразователь) форматирования даты
+
+{{ value|first }} - фильтр возвращает первый элемент списка
+
+{{ value|floatformat:3 }} - возвращает число с тремя знакамм после запятой
+
+
+Глава 17. Параметры в URL-запросах
+----------------------------------
+Формирование вывода статей по определенным категориям. Название 'category_id' фигурирует в БД, поэтому сначала указываем его в маршруте, а потом передаем в контроллер, где уже переменную с таким названием извлекаем из БД (т.е. в category_id=category_id слева стоит значение поля с таким названием в таблице news в БД, a справа - параметр, переданный в контроллер, для формирования результатов запроса по конкретной записи):
+# urls.py
+...
+path('category/<int:category_id>', get_category),
+...
+# views.py 
+...
+def indext(request):
+    news = News.objects.all()
+    categories = Category.objects.all()
+    context = {
+        'news': news,
+        'title': 'Список новостей',
+        'categories': categories,
+    }
+    return render(request, template_name='news/index.html', context=context)
+
+def get_category(request, category_id):
+    news = News.objects.filter(category_id=category_id)
+    categories = Category.objects.all()
+    category = Category.get(pk=category_id)
+    return render(request, 'news/category.html', {'news': news, 'categories': categories, 'category': category})
+
+# index.html
+...
+<a href="/">HomePage</a>
+...
+{%  for item in categories %}
+  <a href="/category/{{ item.pk }}">{{ item.title }}<a/>
+{% endfor %}
+...
+{% for item in news %}
+  Категория {{ item.category }}
+  <p> {{ item.title }}</p>
+  <p> {{ item.content }}</p>
+...
+
+# category.html
+...
+{{ category.title }} - указан в заголовке страницы
+...
+В этом файле код будет примерно таким же, как и в index.html, но выводиться данные будут только по определенной категории, потому что в контроллере формируется сокращенный объект запроса, ограниченный номером категории.
+
+
+Глава 18. Имена маршрутов
+-------------------------
+Даем имена маршрутам:
+# urls.py
+...
+path('', index, name='home'),
+path('categories/<int:category_id>', get_category, name='category'),
+...
+
+# index.html
+...
+<a href="{% url 'home' %}">HomePage</a>
+...
+{% for item in categories %}
+  <a href="{% url 'category' item.pk %}">{{ item.title }}</a>
+...
+{% for item in news %}
+  <a href="{% url 'category' item.category.pk %}">{{ item.category }}</a>
+...
+
+# category.html
+...
+{% for item in categories %}
+  <a href="{% url 'category' item.pk %}">{{ item.title }}</a>
+...
+{% for item in  news %}
+  Категория: {{ item.title }}
+...
+
+
+Глава 19. Наследование шаблонов
+-------------------------------
+Структура файлов и папок для  хранения шаблонов на данный момент:
+mysite
+     |
+      config -> ...
+      news -> templates -> news -> [index.html, category.html]
+      templates -> base.html 
+               |         
+                inc -> [_nav.html]
+
+# base.html
+{% include  'inc/_nav.html' %}
+{% block sidebar %}SIDEBAR{% endblock %}
+{% block  content %}CONTENT{% endblock %}
+
+# _nav.html
+<nav class=...
+<a class='navbar-brand' href="{% url 'home' %}">Новостной сайт</a>
+...
+<ul class="navbar-nav mr-auto">
+  <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Главная</a></li>
+  <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Добавить новость</a></li>
+</ul>
+...
+</nav>
+
+
+Глава 20. Пользовательские теги шаблона
+---------------------------------------
+
+
 
 
