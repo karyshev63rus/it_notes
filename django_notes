@@ -1409,19 +1409,112 @@ STATICFILES_DIRS = [
 <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}"> - подключаем стили bootstrap.css из папка static, что лежит в папке приложения (так же подключаются все другие библиотеки, например, jquery)
 
 
+Уроки 23, 24, 25. Работа с формами (Части 1, 2, 3)
+--------------------------------------------------
+Создаем формы для публикации статей на сайте
+# urls.py
+...
+path('news/add-news/', add_news, name='add_news'),
+...
+
+1) Создаем формы, которые м.б. как основанными на моделях, так и нет
+ВАРИАНТ формы, НЕ основанной на модели
+# forms.py
+A) Начальный вариант, не включающий параметры различных настроек
+from django import forms
+from .models import Category
+
+class NewsForm(forms.Form):
+    title = forms.CharField(max_length=150)
+    content = forms.CharField()
+    is_published = forms.BooleanField()
+    category = forms.ModelChoiceField(queryset=Category.objects.all())
+
+B) Продвинутый вариант с параметрами
+...
+class NewsForm(forms.Form):
+    title = forms.CharField(max_length=150, label='Название', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    content = forms.CharField(label='Текст', required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 5}))
+    is_published = forms.BooleanField(label='Опубликовано?', initial=True)
+    category = forms.ModelChoiceField(empty_label='Выберите категорию','Категория', queryset=Category.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
+
+ВАРИАНТ формы, ОСНОВАННОЙ на модели
+# forms.py
+from django import forms
+from .models import News
+
+class NewsForm(forms.ModelForm):
+    class Meta:
+        model = News
+        # fields = '__all__' 
+        # но лучше указать поля явно, перечислив их
+        fields = ['title', 'content', 'is_published', 'category']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'category': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+2) Создаем функции-обработчики для обоих вариантов форм
+ВАРИАНТ для обработки формы, НЕ основанной на модели
+# views.py
+...
+def add_news(request):
+    if request.method == 'POST':
+        form = NewsForm(request.POST)
+        if form.is_valid():
+            news = News.objects.create(**form.cleaned_data)
+            return redirect(news) # непонятная строка
+    else:
+        form = NewsForm()
+    return render(request, 'news/add_news.html', {'form': form})
+
+ВАРИАНТ для обработки модели, ОСНОВАННОЙ на модели
+Здесь вместо строки news = News.objects.create(**form.cleaned_data) используется строка news = form.save()
+
+3) Формируем шаблон для отображения формы (используется bootstrap)
+Здесь используются различные варианты кастомизации полей формы
+Общая конструкция
+# add_news.html
+...
+{% block content %}
+...
+<form action="{% url 'add_news' %}" method="post">
+    {% csrf_token %}
+ЗДЕСЬ РАСПОЛАГАЮТСЯ ВАРИАНТЫ
+    <button type="submit" class="btn btn-primary btn-block">Добавить новость</button>
+</form>
+{% endblock %}
+
+A) Базовый "автоматический" вариант, без ручной кастомизации
+    {{ form.as_p }}
+
+B) Наиболеее гибкий, "ручной" вариант, где отдельно кастомизируется каждое поле формы с учетом его особенностей (ниже приводится фрагмент для поля title)
+    {{ form.non_field.errors }}
+    <div class='form-group'>
+        <label for="{{form.title.id_for_label }}">Название: </label>
+        {{ form.title }}
+        <div class="invalid-feedback">
+            {{ form.title.errors }} 
+        </div>
+    </div>
+... # И так ровно столько раз, сколько заполняемых полей в форме
+
+C) Промежуточный "полуавтоматический" вариант, использующий цикл
+{% for field in form %}
+<div class='form-group'>
+    {{ field.label_tag }}
+    {{ field }}
+    <div class='invalid-feedback'>
+        {{ field.errors }}
+    </div>
+</div>
 
 
 
 
 
-
-
-
-
-
-
-
-
+ 
 
 
 
