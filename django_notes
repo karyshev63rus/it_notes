@@ -1631,16 +1631,231 @@ class CreateNews(CreateView):
     success_url = reverse_lazy('home')
 
 
+Уроки 32 - 39. Django ORM
+-------------------------
+python manage.py shell
+from news.models import News, Category
 
+У.32
+----
+News.objects.all() - получаем все записи из бд
+News.objects.order_by('pk') - получаем записи, отсортированные по полю news_id (т.е. по первичному ключу, и даже не надо вспоминать его название).Если перед 'pk' поставить минус, то сортировка будет проведена в обратном порядке
+News.objects.all().reverse() - также меняет порядок (и, по-видимому, здесь так же по первичному ключу)
+News.objects.get(pk=1) - выбор записи по первичному ключу
+News.objects.get(title='News 5') - выбор записи по полю title
+news5 = _ - запишем в переменную news5 результаты последнего запроса
+news5 - получаем тот же результат последнего запроса
+news5.is_published - опубликована ли эта запись (вернет True или False)
+news5.category - вернет категорию записи (получение связанных данных; благодаря методу __str__ модели Category получаем не номер объекта, т.е. категории, а ее название)
+news5.category.pk - вернет номер категории для данной статьи (например, 4)
+news5.category.title - название категории (здесь, в общем случае, идет рассмотрение обращения к первичной модели через вторичную модель)
+cat4 = Category.objects.get(pk=4)
+news_cat4 = cat4.news_set.all() - получение данных из вторичной модели через обратную связь (и вывод на печать)
+for item in news_cat4:
+   print(item.title, item.is_published)
+Выражение _set можно переназвать (в таком случае обратиться через _set более не получится):
+# models.py
+...
+class News(models.Model):
+...
+   category = models.ForeignKey(..., related_name='get_news')
+...
+cat4.get_news.all() - применяем новое название
 
+У.33
+----
+Lookups (лукапы) - фильтры
+Синтаксис фильтра полей: <имя поля>__<фильтр> (через двойное подчеркивание)
+News.objects.filter(pk__gt=4) - новости со значением pk более 4
+News.objects.filter(pk__gte=4) - новости со значением pk не менее 4
+News.objects.filter(title__contains='news') - в заголовке есть подстрока 'news', если использовать icontains, регистр будет игнорироваться (играет роль, когда идет работа с кириллицей)
+News.objects.filter(pk__in=[9, 10, 11]) - берутся записи, имеющие значения первичных ключей  9, 10 и 11
+News.objects.filter(pk__in=[9, 10, 11], title__contains='news') - то же, но с еще одним условием - в названии должно быть слово 'news'
+Следует заметить, что в предыдущем примере используется логическое 'и'.
 
+У.34
+----
+Получение первой или последней записи (по pk) или наиболее ранней или поздней записи (по значению конкретного поля)
+News.objects.first()
+News.objects.last()
+News.objects.earliest('updated_at')
+News.objects.latest('updated_at')
 
+Сортировка по первичному ключу дает тот же результат
+News.objects.order_by('pk').first()
+News.objects.order_by('-pk').first()
 
+Фильтруем новости по категории и берем первую из полученного набора
+cat1 = Category.objects.get(pk=1)
+news = cat1.news_set.all()
+news = cat1.news_set.filter(pk_gt=1).first()
 
+То же, но фильтруем по ряду категорий
+cats = Category.objects.filter(pk__in=[1, 3])
+News.objects.filter(category__in=cats)
 
+Проверка наличия записей по условию и их подсчет
+cat1 = Category.objects.get(pk=1)
+cat1.news_set.exists() - наличие записей по категории 1
+cat1.news_set.count() - количество записей по категории 1
+News.objects.count() - общее количество записей
 
+Получение предыдущей и последующей записей
+news = News.objects.get(pk=5)
+news.get_previous_by_created_at()
+news.get_next_by_created_all()
 
+При этом возможно применение фильтров
+news.get_next_by_created_at(pk__gt=10, title__contains=7)
 
+У.35
+----
+Получение записей из вторичной модели по какому-то значению из первичной модели и наоборот
+
+Получаем записи из вторичной модели не по ключу первичной модели, а по значению другого из ее полей, для чего применяем синтаксис  <имя поля внешнего ключа>__<имя поля первичной модели>
+News.objects.filter(category__title='Политика')
+
+Получаем данные из первичной модели на основе условий фильтрации вторичной модели
+Category.objects.filter(news__title__contains='news')
+
+Получаем уникальные значения из набора
+Category.objects.filter(news__title__contains='news').distinct()
+
+Класс Q
+from django.db.models import Q
+операторы: | & ~ (соответственно, логические 'или', 'и' и 'не')
+
+В запросе (здесь используется логическое 'и', так как перечисляем  условия через запятую) получим пустой набор, так как такой записи нет 
+News.objects.filter(pk__in=[5, 6], title__contains='2')
+
+Используем в этом случае класс Q (применяем логическое 'или')
+News.objects.filter(Q(pk__in=[5, 6]) | Q(title__contains='2'))
+
+Изменим запрос, убрав одно из условий и добавив логическое 'не'
+News.objects.filter(Q(pk__in=[5, 6]) & ~Q(pk__lt=4))
+
+У.36
+----
+Делаем срезы по набору записей
+News.objects.all()[:3]
+News.objects.all()[10:]
+News.objects.all()[3:5]
+
+Импортируем агрегирующие функции
+from django.db.models import Min, Max, Count, Sum, Avg, Variance 
+или просто
+from django.db.models import *
+
+Добавляем в модель News поле (отображает число просмотров новости)
+# models.py
+...
+class News(models.Model):
+...
+views = models.IntegerField(default=0)
+...
+
+Получение минимального и максимального значений поля views
+News.objects.aggregate(Min('views'), Max('views'))
+или с присвоением имен
+News.objects.aggregate(min_views=Min('views'), max_views=Max('views'))
+
+Получение производного показателя - разницы между max и min
+News.obkects.aggregate(diff=Max('views')-Min('views'))
+
+Суммирование и усреднение
+News.objects.aggregate(Sum('views'))
+News.objects.aggregate(Avg('views'))
+
+Не путать count() и Count()
+
+У.37
+----
+Осуществляем запросы с группированием данных (annotate())
+
+Вычисляем количество статей по каждой из категорий
+cats = Category.objects.annotate(Count('news'))
+for item in cats:
+    print(item.title, item.news__count)
+или, если дадим имя функции
+cats = Category.objects.annotate(cnt=Count('news'))
+for item in cats:
+    print(item.title, item.cnt)
+
+По каждой категории выводим статьи с максимальным числом просмотров
+cats = Category.objects.annotate(max_views=Max('news__views'))
+for item in cats:
+    print(item.title,  item.max_views)
+
+По каждой категории вычисляем общее число просмотров статей
+cats = Category.objects.annotate(sum_views=Sum('news__views'))
+for item in  cats:
+    print(item.title, item.sum__views)
+
+Метод annotate() возвращает набор, который далее можно фильтровать
+cats = Category.objects.annotate(cnt=Count('news')).filter(cnt__gt=0)
+...
+
+Выводим на странице только те категории, в которых есть статьти. Для этого меняем код пользовательского тега show_categories в файле #news_tags.py
+...
+from django.db.models import Count
+...
+categories = Category.objects.annotate(cnt=Count('news')).filter(cnt__gt=0))
+...
+
+Указываем число статей по категориям в шаблоне #list_categories.html
+...
+<a href='{{ item.get_absolute_url }}'>{{ item.title }}{{ item.cnt }}</a>
+...
+
+У.38
+----
+Получение значений по ключам из словаря, который создаем:
+news1 = News.objects.values('title', 'views').get(pk=1)
+Значения news1['title'] и news1['views'] будут, а, например, news1['id'] или news1['as_published'] - нет, так как таких ключей нет словаре
+
+Проверим, сколько было выполнено запросов к бд
+from django.db import reset_queries 
+reset_queries() - очищает буфер ранее выполненных запросов
+
+news = News.object.values('title', 'views', 'category_title')
+
+from django.db import connection
+connection.quries - выводит результаты ранее выполненных запросов
+Оказывается, что был выполнен один запрос с INNER JOIN
+
+Класс F
+from django.db.models import F
+
+Изменение значения поля отдельной записи в таблице в бд
+news = News.objects.get(pk=1)
+news.views = F('views') + 1
+news.save()
+
+Поиск записей к определенным значением в одном из полей
+News.objects.filter(content__icontains=F('title'))
+
+Обертки над функциями, выполняемыми СУБД
+from django.db.models.functions import Length
+Получим данные о длине заголовков каждой из статей
+news = News.objects.annotate(length=Length('title')).all()
+for item in news:
+    print(item.title, item.length)
+
+У.39
+----
+"Чистый" SQL
+
+from news.models import *
+News.objects.raw("SELECT * FROM news_news")
+news = _
+for item in news:
+    print(item.title,  item.pk,  item.is_published)
+
+Плохая практика формирования запросов (чревата sql-инъекциями):
+News.objects.raw("SELECT * FROM news_news" WHERE title = 'News 5'")
+
+Хорошая практика - это использование параметров
+News.objects.raw("SELECT * FROM news_news" WHERE title = %s", ['News5'])
 
 
 
