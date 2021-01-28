@@ -1858,4 +1858,253 @@ News.objects.raw("SELECT * FROM news_news" WHERE title = 'News 5'")
 News.objects.raw("SELECT * FROM news_news" WHERE title = %s", ['News5'])
 
 
+Урок 40. Debug tool bar
+-----------------------
+pip install django-debug-toolbar
+
+# settings.py
+...
+INSTALLED_APPS = [
+...
+debug_toolbar,
+...
+]
+...
+MIDDLEWARE = [
+...
+'debug_toolbar.middleware.DebugToolbarMiddleware',
+...
+]
+...
+INTARNAL_IPS = ['127.0.0.1']
+...
+
+# urls.py
+...
+if settings.DEBUG:
+    import debug_toolbar
+
+    urlpatterns = [
+                path('__debug__/', include(debug_toolbar.utils)),
+    ] + urlpatterns
+...
+Поставленный отладчик показывает дублирование sql-запросов, для решения проблемы редактируем # views.py (здесь уже используются классы)
+...
+class  HomeView(ListView): - дополняем класс новым аттрибутом
+...
+    queryset = News.objects.select_related('category')
+либо дополняем класс новым методом
+    def get_queryset(self):
+        return News.objects.filter(is_published=True).select_related('category')
+Примерно такие же изменения вносятся в класс NewsByCategory
+В итоге число запросов удается снизить с 15 до 4
+
+
+Урок.41 Кастомизация админки
+----------------------------
+Изменение внешнего вида и функциональности админки
+С помощью debug_toolbar находим html-шаблон 'admin/base_site.html', создаем его копию в папке по адресу mysyte/templates/admin, где django найдет его прежде всего.  
+
+# base_site.html
+{% extends 'admin/base.html' %}
+{% load static %}
+...
+{% block extrastyle %}
+    <link rel="stylesheat" href="{% static 'css/admin.css' %}">
+{% endblock %}
+...
+
+Далее создаем файл admin.css, в котором прописываем нужные стили
+
+Изменяем заголовки в админке, для чего вносим дополнения в файл # admin.py
+...
+admin.site.site_title = 'Управление новостями'
+admin.site.site_header = 'Управление новостями'
+
+Дополняем панель приложения Новости в админке миниатюрами изображений
+# admin.py
+...
+Class NewsAdmin(admin.ModelAdmin):
+    list_display = (..., 'get_photo')
+
+    def get_photo(self, obj):
+        if obj.photo:
+            return mark_safe(f'<img src="{obj.photo.url}">')
+        else:
+            return '-'
+Для переименования в админке столба get_photo пишем метод
+    def get_photo.short_description = 'Миниатюра'
+
+Чтобы фото в админке выводилось не только в списке новостей, но и в опции "Изменить новость" надо указать список выводимых полей в файле # admin.py
+...
+Class NewsAdmin(admin.ModelAdmin):
+...
+    fields = ('title', ..., 'get_photo')
+И поскольку некоторые из этих полей нередактируемы, надо указать из явно
+    readonly_fields = ('get_photo', 'views', 'created_at, 'updated_at')
+
+Наконец, добавлем панель для сохранения/удаления новостей в верхней части админки, указывая в модели NewsAdmin атрибут 
+    save_on_top = True
+
+
+Урок 42. Миксины
+----------------
+Их задача - расширение функциональности других классов через наследование
+
+В папке templatetags создаем файл # utils.py
+class MyMixin(object):
+    mixin_prop = '' - определим свойство, которое в дальнейшем будет переопределяться при наследовании миксима другими классами
+    def get_prop(self):
+        return self.mixin_prop.upper()
+
+Далее наследуем от этого миксина классы в файле # views.py
+...
+from .utils import MyMixin
+...
+class HomeView(MyMixin, ListView):
+...
+    mixin_prop = 'hello world'
+...
+   def get_context_data...
+      ...
+      context['mixin_prop'] = self.get_prop()
+      return context
+
+class NewsByCategory(MyMixin, ListView):
+...
+      здесь делаем то же самое
+
+В шаблоне home_news_lsit.html можно вывести эту переменную:
+...
+{{ mixin_prop }}
+...
+
+Для большего понимания добавим еще один метод в # utils.py
+def get_upper(self, string):
+    return string.upper()
+
+Тогда во # views.py
+...
+class HomeNews(MyMixin, ListView):
+...
+   def get_context_data(self, ...):
+   ...
+       context['title'] = self.get_upper('Главная страница')
+   ...
+Однако этот метод применим здесь лишь к строке, а с набором данных он работать не будет. Для решения этой проблемы дописываем метод в # utils.py
+...
+def get_upper_self, string):
+    if ininstance(string, str):
+        return string.upper()
+    else:
+        return string.title.upper()
+
+И теперь в контроллере NewsByCategory пропишем в методе get_context_data
+context['title'] = Category.objects.get(pk=self.kwargs['category_id'])
+
+Управляем доступом к ресурсам (допускаем к добавлению новостей только авторизованных пользователей)
+Сначала убираем кнопку "Добавить новость" для незарегистрированных пользователей, для чего пишем в файле # _nav.html
+...
+{% if request.user.is_authenticated %}
+  <a href="{% url 'add_news' %}">Добавить новость</a>
+{% endif %}
+...
+Далее закрываем доступ незарегистрированным пользователям к самой возможности добавлять новости, для чего пишем в файле # views.py
+...
+from django.contrib.auth.mixins import LoginRequiredMixin
+...
+class CreateNews(LoginRequiredMixin, CreateView):
+...
+здесь добавляется миксин (уже прописан) и прописываются варианты редиректа
+    login_url = '/admin/'
+    или
+    login_url = reverse_lazy('home')
+    или же вообще выбрасываем исключение
+    raise_exception = True
+
+
+Уроки 43 и 44. Постраничная навигация (Часть 1 и Часть 2)
+---------------------------------------------------------
+Пагинация (сначала реализуем через функцию, потом через класс)
+# views.py
+...
+from django.core.paginator import Paginator
+...
+
+ФУНКЦИЯ
+пишем тестовую функцию, которую далее можно преобразовать в рабочую
+def test(request):
+    objects = ['john1', 'paul1', 'george1', ['ringo1', 'john2', 'paul2']
+    paginator = Paginator(objects, 2)
+    page_num = request.GET.get('page', 1) - берем из запроса номер страницы, которую запрашивает пользователь, в ином случае берем 1
+    page_objects = paginator.get_page(page_num)
+    return render(request, 'news/test.html', {'page_obj': page_objects})
+
+Далее добавляем маршрут в # urls.py
+...
+path('test/', test, name='test'),
+...
+
+Далее создаем # test.html
+...
+{% for name in page_obj.object_list %}
+  <p>name</p>
+{% endfor %}
+...
+
+Сам шаблон разметки пагинатора (выводит перечисление страниц до и после текущей) добавляем в # base.html
+...
+<ul class="pagination">
+  {% for p in page_obj.paginator.page_range %}
+  <li class="page-item">
+    <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+  </li>
+  {% endfor %}
+</ul>
+...
+
+КЛАСС
+Вносим изменения в класс-контроллер в файле # views.py
+...
+class HomeNews(MyMixin, ListView):
+...
+    pagynate_by = 2  
+
+Опционально (???) вносим изменение в файле # news_tags.py
+...
+from django.db.models import Count, F
+...
+@register.inclusion_tag('news/list_categories.html')
+def show_categories(...):
+...
+    categories = Category.objects.annotate(cnt=Count('news', filter=F('news__is_published'))).filter(cnt_gt=0)
+
+Далее доводим до ума пагинацию в шаблоне # base.html
+...
+{% block content %}CONTENT{% endblock %}
+{% if page_obj.has_other_pages %}
+  {%if  page_obj.has_previous %}
+    <a href="" >Previous</a>
+  {% endif %}
+  {% for  p in page_obj.paginator.page_range %}
+    {% if page_obj.number == p %} - если атрибут number объекта page_obj равен текущему номеру страницы, то отметка будет подсвечена (?)
+    <a href="">{{ p }}</a>
+    {% elif p > page_obj.number|add: -3 and p < page_obj.number|add:3 %}
+    {{ p }}
+    {% endif %}
+  {% endfor %}
+  {% if page_obj.has_next %}
+    <a href="">Next</a>
+  {% endif %}
+{% endif %}
+
+
+
+
+
+
+
+
+
+
 
