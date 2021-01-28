@@ -2099,6 +2099,60 @@ def show_categories(...):
 {% endif %}
 
 
+Уроки 45 и 46. Регистрация (Часть 1 и Часть 2)
+----------------------------------------------
+Регистрация - оформление шаблона через класс form-control
+
+# forms.py
+...
+class UserRegisterForm(UserCreationForm):
+    username = forms.CharField(label='Имя пользователя', help_text='Максимум 150 символов', widget=forms.TextInput(attrs={'class': 'form-control'})
+    password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    password2 = forms.CharField(label='Подтвеждение пароля', widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    email = forms.EmailField(label='E-mail', widget=forms.EmailField(attrs={'class': 'form-control'})
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password1', 'password2')
+
+# views.py
+...
+def register(request):
+    if register.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid()
+            form.save()
+            messages.success(request, 'Вы успешно зарегистрировались')
+            return redirect('login')  
+        else:
+            message.error(request, 'Ошибка регистрации')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'news/reqister.html', {'form': form})
+
+def login(request):
+    return render(request, 'news/login.html')
+
+# urls.py
+...
+path('register/', register, name='register'),
+path('login/', login, name='login'),
+...
+
+# news/register.html
+...
+<form method='post'>
+    {% csfr_token %}
+    {{ form.as_p }}
+    <button type='submit class btn ...'>Регистрация</button>
+</form>
+...
+
+
+
+
+
+
 
 
 
