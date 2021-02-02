@@ -2149,6 +2149,163 @@ path('login/', login, name='login'),
 ...
 
 
+Урок 47. Авторизация
+--------------------
+Этот процесс включает два этапа: аутентификацию (распознавание) пользователя и собственно авторизацию - заполнив одну и ту же форму, можно авторизоваться и простым пользователем, и администратором
+
+Переименовываем контроллер login в файле #views.py
+...
+def user_login(request):
+    ...
+
+и, следовательно, меняем маршрут в файле # urls.py
+...
+path('login/', user_login, name='login')
+...
+
+Создаем форму, наследуя ее от AuthenticationForm в файле # forms.py
+....
+class UserLoginForm(AuthenticationForm):
+    username = ... -  эти поля можно скопировать из
+    password = ... -  формы UserRegisterForm
+
+и добавляем поля аутентификации в файл # login.html, копируя их из
+файла register.html
+
+Для облегчения жизни только что зарегистрированного пользователя изменяем функцию register в файле # views.py
+...
+def register(request):
+...
+    user = form.save()
+    login(request, user)
+    ...
+    return redurect('home')
+
+В одном из базовых шаблонов (_nav.html) добавляем строки для авторизации и приветствия пользователя, а также разлогирования
+
+Реализуем функцию user_logout в файле # views.py
+def user_logout(request):
+    logout(request)
+    return redirect('login')
+
+и меняем маршрут для разлогирования # urls.py
+...
+path('logout/', user_logout, name='logout'),
+...
+
+
+Урок 48. Отправка писем на Email
+--------------------------------
+Работа с smtp-сервером
+
+Создаем форму в файле # forms.py
+...
+class ContactForm(forms.Form):
+    subject = ...
+    content = ...
+
+добавляем функцию отправки письма в файл # views.py и создаем шаблон для отправки # test.html (название рабочее)
+
+
+Урок 49. Визуальный редактор CKEditor
+-------------------------------------
+Алгоритм установки прописан на (pypi.org/project/django-ckeditor/#installation):
+
+1. Устанока приложения: pip install  django-ckeditor
+
+2. Регистрация в файле # settings.py: ckeditor
+
+3. складируем все файлы в общую папку: python manage.py collectstatic
+
+4. в файле # settings.py указывается, куда будут загружаться изображения:
+   CKEDITOR_UPLOAD_PATH = "uploads/"
+
+5. добавляем в список установленных приложений в файл # settings.py:
+   ckeditor_uploader
+
+6. в корневой файл маршрутов # urls.py добавляем:
+   ...
+   path('ckeditor/', include('ckeditor_uploader.urls')),
+   ...
+
+7. встраиваем widget, дополняя и меняя код в файлах # admin.py и settings.py
+
+
+Урок 50. Капча
+--------------
+1. установка пакета: pip install django-simple-captcha
+
+2. добавление пакета в список установленных приложений в файле # settings.py: captcha
+
+3. осуществление миграции: python manage.py migrate
+
+4. добавление маршрута в корневой файл # urls.py: 
+path('captcha/', include('capthca.urls')),
+
+5. в файле # forms.py добавляем в код:
+...
+from captcha.fields import CaptchaField
+...
+class ContactForm(forms.Form):
+   ...
+   captcha = CaptchaField()
+
+6. настройки каптчи можно делать в файле # settings.py, например:
+...
+CAPTCHA_LETTER_ROTATION = None 
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
+CAPTCHA_NOISE_FUNCTIONS = None
+
+
+Урок 51. Кэширование
+--------------------
+Здесь рассматривается кэширование в файловую систему
+
+1. в файле # settings.py указываем, где будем хранить кэшированные файлы
+...
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, 'django_cache'),
+    }
+}
+...
+но можно создать и папку по пути /var/tmp/
+
+2. кэширование страниц
+в файле # urls.py прописываем для кэширования домашней страницы:
+from django.views.decorators.cache import cache_page
+...
+path('', cache_page(60)(HomeNews.as_view()), name='home'),
+...
+
+также можно кэшировать страницы на уровне шаблонов, например, в файле 
+# base.html:
+{% load cache %}
+{% cache 600 sidebar %}
+... sidebar ... - здесь используется тег show_categories
+{% endcache %}
+
+соответственно, надо изменить код тега show_categories, что и сделаем в файле # news_tags.py:
+...
+from django.core.cache import cache 
+...
+@register.inclusion_tag('news/list_categories.html')
+def show_categories(...):
+    categories = cache.get('categories')
+    if not categories:
+        categories = Category.objects.annotate(...)
+        cache.set('categories', categories, 30)
+    return (...)
+
+
+
+
+
+
+
+
+
 
 
 
