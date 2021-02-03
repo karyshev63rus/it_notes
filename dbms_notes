@@ -13,3 +13,10 @@ cd /var/run/; mkdir postgresql; chown postgres:postgres postgresql - и, нак�
 
 sudo apt-get --purge remove postgresql postgresql-12  postgresql-client  postgresql-client-12 postgresql-client-common postgresql-common  postgresql-contrib postgresql-contrib-12 - команда для сноса всего
 
+sudo service postgresql start - запуск сервера с БД 
+sudo -u postgres psql - начало сессии работы с БД (как понимаю, логинимся пользователем postgres) - открывает соединение, но пишет: "could not change directory to '/root': Permission denied" (возможно, из-за того, что в wsl изначально работаешь под рутом). 
+\l - выводит список БД
+\s - выводит историю команд (?)
+\conninfo - вывести информацию о текущем соединении (например, "You are connected to database 'postgres' as user 'postgres' via socket in '/var/run/postgresql' at port '5432'.")
+\d - выводит список таблиц в текущей БД (?)
+\c имя_БД - переключение на другую БД внутри psql
