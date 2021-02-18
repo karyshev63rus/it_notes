@@ -958,18 +958,18 @@ run:
 5. Создаем или подтверждаем желание развертывать приложение в контейнере
 $ heroku stack:set container -a <appname>
 
-5. Прикручиваем БД
+6. Прикручиваем БД
 $ heroku addons:create heroku-postgresql:hobby-dev -a <appname>
 
-6. Устанавливаем связь с удаленным репо на heroku и заливаем код
+7. Устанавливаем связь с удаленным репо на heroku и заливаем код
 $ heroku git:remote -a <appname>
 $ heroku git push heroku master
 
-7. Выполням миграции для создания таблиц в новой БД и создаем суперюзера
+8. Выполням миграции для создания таблиц в новой БД и создаем суперюзера
 $ DCPM migrate
 $ DCPM createsuperuser
 
-8. Открываем приложение в браузере
+9. Открываем приложение в браузере
 $ heroku open -a <appname>
 
 

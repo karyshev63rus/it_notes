@@ -3,6 +3,8 @@
 
 HEROKU
 ------
+Установка Heroku в случай с WSL возможна командой curl https://cli-assets.heroku.com/install.sh | sh
+
 I. Развертывание без статических файлов и использования docker 
 --------------------------------------------------------------
 1. Обновить файл Pipfile.lock: 
@@ -39,4 +41,96 @@ heroku ps:scale web=1
 
 11. Открыть сайт: 
 heroku open
+
+II. Развертывание с использованием статических файлов, но без docker
+--------------------------------------------------------------------
+К вышеприведенному алгоритму добавим пункты 7.1.1.-7.1.2
+7.1.1. Установить пакет для работы со статическими файлами:
+pipenv install whitenoise
+
+7.1.2. В настройках (файл settings.py) указать:
+a) в списке INSTALLED_APPS (обязательно перед django.contrib.staticfiles):
+whitehoise.runserver_nostatic
+
+б) в списке MIDDLEWARE (третьим сверху):
+whitenoise.middleware.WhiteNoiseMiddleware
+
+в) далее в файле settings.py (добавить то, что еще не указано): 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = /static/
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_STORAGE =  'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+Разумеется, что в этом случае п. 8 из вышеприведенного алгоритма исключается.
+
+III. Развертывание с использованием docker
+------------------------------------------
+Разработка приложения ведется на основе docker-compose файлов
+
+1. Установить whitenoise и прописать нужные строки в файле #settings.py
+docker-compose exec web pipenv install whitenoise
+
+2. Собрать статические файлы
+docker-compose exec web python manage.py collectstatic
+
+3. Установить gunicorn 
+docker-compose exec web pipenv install gunicorn
+
+4. Прописать нужные строки в docker-compose-prod.yml
+command: gunicorn config.wsgi -b 0.0.0.0:8000
+
+5. Установить приложение для переноса БД (???)
+docker-compose exec web pipenv install dj-database-url
+
+6. Добавить строки о БД в настройки
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+
+7. Добавить в настройки файла # settings.py
+...
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+...
+
+8. Создать локальный репо и доводим его до коммита
+
+9. Залогиниться на heroku 
+$ heroku login
+
+10. Создать yml-файл для создания контейнера на heroku 
+# heroku.yml
+setup:
+    addons:
+    - plan: heroku-postgresql
+build:
+    docker:
+        web: Dockerfile
+release:
+    image: web
+    command:
+    - python manage.py collectstatic --noinput
+run:
+    web: gunicorn bookstore_project.wsgi
+
+11. Создать приложение с желаемым названием <appname> на .herokuapp.com (его можно сразу же записать в settings.py)
+heroku create <appname>
+
+12. На сайте heroku ввести значения необходимых переменных окружения
+
+13. Создать (или подтвердить?) желание развернуть приложение в контейнере
+$ heroku stack:set container -a <appname>
+
+14. Создать БД
+$ heroku addons:create heroku-postgresql:hobby-dev -a <appname>
+
+15. Связать локальное репо с удаленным репо на heroku и залить код
+$ heroku git:remote -a <appname>
+$ heroku git push heroku master
+
+16. Выполнить миграции для создания таблиц в новой БД и создать суперюзера
+$ DCPM migrate
+$ DCPM createsuperuser
+
+17. Открыть приложение в браузере
+$ heroku open -a <appname>
 
