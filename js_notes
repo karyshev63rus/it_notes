@@ -1,5 +1,7 @@
 JavaScript
 ----------
+mdn (mozilla developer network) - платформа для обучения веб-технологиям и ПО
+
 Подключить файл с js-скриптом в html-файле:
 <script src"script.js"></script>
 
