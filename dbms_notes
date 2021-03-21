@@ -36,7 +36,6 @@ sudo apt-get --purge remove postgresql postgresql-12  postgresql-client  postgre
 Была проблема: программа с Postgres ставится и сервер запускается, но после перезагрузки компьютера при попытке запуска появляется ошибка - нет папки по адресу /var/run/postgresql.
 Создавал такую папку, но вываливались новые ошибки - нет доступа. В итоге пришлось создать такую папку и поменять ее владельца:
 cd /var/run/; mkdir postgresql; chown postgres:postgres postgresql - и, наконец-то, сервер стал запускаться и после перезагрузки системы (т.е. компа)
-
 ---------------------------------
 
 =====
@@ -48,10 +47,15 @@ REDIS
 1. sudo apt install redis-server - устанавливаем серверную базу данных redis через менеджер пакетов apt
 2. sudo vim /etc/redis/redis.conf - открываем конфгурационный файли правим строку "supervised no", заменяя 'no' на 'systemd'
 3. sudo systemctl restart redis.service - перезапускаем сервер redis для вступления изменений в силу 
+:
+Для WSL2
+--------
+1. вводится дополнительная команда: sudo systemctl enable redis-server.service 
+2. после чего запускается сервер: sudo service redis-server start
 
 Тестирование redis:
 -------------------
-sudo systemctl status redis
+sudo systemctl status redis (для WSL2 не работает)
 
 Работа в терминале:
 -------------------
