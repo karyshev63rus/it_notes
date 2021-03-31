@@ -61,3 +61,18 @@ sudo systemctl status redis (для WSL2 не работает)
 -------------------
 1. redis-cli - подключение к серверу с помощью клиента командной строки
 
+========
+RABBITMQ
+========
+
+Установка брокера
+-----------------
+sudo apt-get update -y
+sudo apt-get install -y rabbitmq-server 
+
+Работа с брокером
+-----------------
+sudo service rabbitmq-server status - проверка статуса
+--- stop - остановка сервера
+--- start - запуск сервера
+
