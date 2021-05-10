@@ -92,6 +92,9 @@ apt-get install apt-file
 apt-file update
 apt-get install nano
 
+В Dockerfile прописываем команду:
+RUN apt-get update && apt-get install -y vim
+
 выходим из контейнера и на его основе создаем образ (предварительно 
 посмотрев номер контейнера):
 docker commit <номер контейнера> <имя нового, создаваемого образа>
