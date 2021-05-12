@@ -92,3 +92,39 @@ let accessAllowed = (age > 18) ? true: false;
 Использование ? в качестве оператора if
 let company = prompt('Какая компания создала javascript?');
 (company == 'Netscape') ? alert('Верно') : alert('Неправильно');
+
+
+Ждем пока не загрузится dom-дерево и находим элемент c классом 'block':
+----
+window.addEventListener('DOMContnetLoaded', function() {
+    console.log(document.querySelector('.block'))
+})
+
+Ждем загрузки dom-дерева и меняем цвет букв первого параграфа, отмеченного классом 'title' на синий:
+----
+window.addEvevtListener('DOMContentLoaded', function() {
+    document.querySelector('.text').style.color = 'blue'
+})
+
+В коде js принято названия стилей css писать кэмэлкейсом, например: background-color - backgroundColor
+
+
+Ждем загрузки dom-дерева, потом находим элемент с id 'burger', ждем наступления события (клик на этот элемент - кнопку), после чего показывается/пропадает элемент с id 'menu':
+----
+window.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('#burger').addEventListener('click', function() {
+         document.querySelector('#menu').ClassList.toggle('is-active')
+    })
+})
+
+После загрузки dom-дерева можем выделять кликом любые элементы страницы (менять цвет с черного на красный и обратно), имеющие класс 'text':
+----
+window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.text').forEach(function(el) {
+        el.addEventListener('click', function(event) {
+            event.target.classList.toggle('alert')
+        })
+    })
+})
+
+
