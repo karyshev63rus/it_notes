@@ -794,6 +794,8 @@ git push origin master
 ------------------------
 git rm --cached <filename> - отмена внесения файла в индекс и возвращение его в unstaged
 
+git restore --staged <filename> - откат файла из индекса в доиндексное состояние
+
 git checkout -- <filename> - отмена изменений в файле до команды git add, т.е. до внесения файла в индекс
 
 git reset HEAD <filename> - откат назад в доиндексное состояние после команды git add, но до команды git commit
