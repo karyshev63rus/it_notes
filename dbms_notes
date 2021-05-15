@@ -80,5 +80,9 @@ sudo service rabbitmq-server status - проверка статуса
 ================
 DJANGO DATABASES
 ================
+
 python manage.py dbshell - открывается консоль используемой базы данных (например, postgresql) от имени владельца базы данных, "привязанной" к данному приложению django.
+
+- "POSTGRES_HOST_AUTH_METHOD=trust" - указываем в docker-compose.yml вместо пароля
+
 
