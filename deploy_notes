@@ -134,3 +134,9 @@ $ DCPM createsuperuser
 17. Открыть приложение в браузере
 $ heroku open -a <appname>
 
+-----
+About requirements.txt
+-----
+В ubuntu при формировании этого файла создается строка 'pkg-resources', мешающая правильной установке пакетов. С целью ее удаления предлагается использовать следующую команду (проверено - работает):
+pip freeze | grep -v "pkg-resources" > requirements.txt
+
