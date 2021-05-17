@@ -45,6 +45,8 @@ df -i - покажет число i-нодов
 ln file file_like_hard_link - создание хард-линка на файл (по сути, ls выводит названия файлов, которые и являются хард-линками на файлы. Это еще одна запись в каталоге о файле)
 lh -s file file_soft_link - создание софт-линка, т.е. ярлыка файла или каталога (а хард-линки не могут создаваться на каталоги)
 
+file - утилита для получения характеритики файла, например:
+file .bashrc выведет сообщение .bashrc: ASCII text, with very long lines
 grep - global  regular expressions print
 например, ищем строки со словом "install" в файле dpkg.log: grep "install" /var/log/ dpkg.log
 поиск посредством команды grep: grep шаблон файл
