@@ -2299,23 +2299,66 @@ def show_categories(...):
     return (...)
 
 
+Решение ситуации по добавлению полей в существующую модель
+----------------
 
+При добавлении в существующую модель новых полей может возникнуть ситуация, когда вводимое поле у существующих записей надо чем-то заполнить (например, в проекте edu2021 при миграции моделей Module и Content послед довабления собственного поля order). 
+При этом Django выводит сообщение:
 
+You are trying to add a non-nullable field 'order' to content without a default; we can't do that (the database needs something to populate existing rows).
 
+Please select a fix:
 
+ 1) Provide a one-off default now (will be set on all existing rows with a null value for this column)
+ 2) Quit, and let me add a default in models.py
+Select an option: 
 
+Выбираем пункт 1 (и жмем Enter) для того, чтобы проставить значения по умолчанию для существующих объектов.
 
+На экран выводится сообщение:
 
+Please enter the default value now, as valid Python
+The datetime and django.utils.timezone modules are available, so you can do e.g. timezone.now
+Type 'exit' to exit this prompt
 
+и открывается консоль: >>>
 
+Вводим 0 и нажимаем Enter.
 
+Далее выводится такое сообщение (это повторение самого первого сообщения, такого вроде бы быть не должно, но мы-то изменяем две модели!!!):
 
+You are trying to add a non-nullable field 'order' to module without a default; we can't do that (the database needs something to populate existing rows).
 
+Please select a fix:
+ 1) Provide a one-off default now (will be set on all existing rows with a null value for this column)
+ 2) Quit, and let me add a default in models.py
 
+Select an option: 
 
+Снова выбираем первую опцию (+ Enter, конечно) и ...
 
+Please enter the default value now, as valid Python
+The datetime and django.utils.timezone modules are available, so you can do e.g. timezone.now
+Type 'exit' to exit this prompt
 
+... и вводим 0
 
+Далее выводятся результаты создания миграционного файла моделей
 
+Migrations for 'courses':
+  courses/migrations/0003_auto_20210520_0814.py
+    - Change Meta options on content
+    - Change Meta options on module
+    - Add field order to content
+    - Add field order to module
 
+Остается применить миграцию и получить в ответ: 
+
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, courses, sessions
+Running migrations:
+  Applying courses.0003_auto_20210520_0814... OK
+
+Миграция прошла успешно - таблицы БД приведены в новое состояние
+----------
 
