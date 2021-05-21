@@ -14,7 +14,7 @@ sudo apt-get --purge remove postgresql postgresql-12  postgresql-client  postgre
 СОЗДАЕМ БАЗУ ДАННЫХ на сервере postgresql, например, для подключения к ней django-проекта:
 -------------------
 1. sudo service postgresql start - запустить сервер с БД 
-2. sudo -u -i postgres psql - открыть сессию работы с БД 
+2. sudo -i -u postgres psql - открыть сессию работы с БД 
 3. CREATE DATABASE <dbname>; - создать БД для проекта
 4. CREATE USER 	<dbusername> WITH PASSWORD '<password>'; - создать пользователя с паролем (кавычки обязательны)
 5. GRANT ALL PRIVILEGES ON DATABASE <dbname> TO <dbusername>; - права админа БД
@@ -24,11 +24,24 @@ sudo apt-get --purge remove postgresql postgresql-12  postgresql-client  postgre
 
 ПОЛЕЗНЫЕ КОМАНДЫ
 ----------------
-\l - выводит список БД
-\s - выводит историю команд (?)
-\conninfo - вывести информацию о текущем соединении (например, "You are connected to database 'postgres' as user 'postgres' via socket in '/var/run/postgresql' at port '5432'.")
-\d - выводит список таблиц в текущей БД (?)
+\? - список всех команд
+\h - помощь
+\l - список БД
+\s - история команд
+\conninfo - информация о текущем соединении (например, "You are connected to database 'postgres' as user 'postgres' via socket in '/var/run/postgresql' at port '5432'.")
+\d - список таблиц и последовательностей (seq - что-то вроде вспомогательных таблиц или с номерами записей в основных таблицах) в текущей БД
+\dt - список таблиц
+\dt+ - список таблиц с описанием
+\dt *str* - список таблиц, содержащих str в имени
+\du - список пользователей и предоставленных им привелегий
 \c имя_БД - переключение на другую БД внутри psql/var/log/postgresql/postgresql-12-main.log - логи
+
+УСТАНОВКА ПАРОЛЯ ДЛЯ ПОЛЬЗОВАТЕЛЯ POSTGRES
+------------------------------------------
+sudo passwd postgres - устанавливаем пароль, открываем другую сессию (перезагружаемся) и пытаемся войти под именем postges с использованием нового пароля. Вероятно, появится сообщение, что такой пользователь не входит в группу sudoers. Открываем файл /etc/sudoers через sudo и добавляем в него после строки 
+#Allow members of group sudo to execute any command 
+строку postgres ALL=(ALL)  ALL  
+Далее сохраняемся (требуется ввести команду w!), выходим и перезагружаемся. В новой сессии входим командой su - postgres с использованием установленного нами пароля
 
 
 СЛУЧАИ
