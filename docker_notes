@@ -191,3 +191,128 @@ alias drt='docker run -it --rm -p 8000:8000'
 alias drd='docker run -d --name dc -p 8000:8000'
 alias dbt='docker build -t'
 alias dc='docker-compose'
+
+rabbit_ds.yml
+-------------
+version: "3.7"
+
+services:
+  web:
+    build:
+      context: .
+    image: web-image
+    container_name: web
+    hostname: web
+    restart: on-failure
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+    command: >
+      bash -c "python /code/manage.py migrate &&
+             python /code/manage.py runserver 0.0.0.0:8000"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - db
+      - rabbit
+    networks:
+      - shared_network
+
+  rabbit:
+    image: rabbitmq:3-management
+    container_name: rabbit
+    hostname: rabbit
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+      - RABBITMQ_DEFAULT_VHOST=/
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - shared_network
+
+  worker:
+    image: web-image
+    restart: on-failure
+    command: >
+      bash -c "celery -A config worker -l info"
+    depends_on:
+      - web
+      - rabbit
+      - db
+    networks:
+      - shared_network
+
+  db:
+    build: postgres/
+    container_name: db
+    hostname: db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+    ports:
+      - "5432:5432"
+    networks:
+      - shared_network
+
+volumes:
+  postgres_data:
+
+networks:
+  shared_network:
+    driver: bridge
+
+
+redis_dc.yml
+------------
+version: '3.7'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+    command: >
+      bash -c "python /code/manage.py migrate &&
+             python /code/manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
+  db:
+    build: postgres/
+    container_name: db
+    hostname: db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
+  celery:
+    build: .
+    command: celery worker --app=core --loglevel=info --logfile=logs/celery.log
+    volumes:
+      - ./code:/usr/src/app
+    environment:
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - web
+      - redis
+
+  redis:
+    image: redis:5-alpine
+
+volumes:
+  postgres_data:
+
