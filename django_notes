@@ -2362,3 +2362,8 @@ Running migrations:
 Миграция прошла успешно - таблицы БД приведены в новое состояние
 ----------
 
+Фикстуры
+--------
+python manage.py dumpdata <appname.modelname> > <filename>.json - выгрузка данных из таблицы БД в фикстуру
+python manage.py loaddata <path to filename.json> - загрузка данных в БД из фикстуры
+
