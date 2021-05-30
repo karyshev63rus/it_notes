@@ -316,3 +316,9 @@ services:
 volumes:
   postgres_data:
 
+
+Создаем portainer - визуальный интерфейс управления docker-объектами:
+-----------------
+1. создаем том для хранения данных - docker volume create portainer_data
+2. создаем контейнер (порт 8000 лучше бы сменить на другой, поскольку это исконный порт для Django; можно вообще оставить только 9000 - проверено: портейнеру его хватает) - docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
+
