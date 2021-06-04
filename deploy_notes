@@ -140,3 +140,81 @@ About requirements.txt
 В ubuntu при формировании этого файла создается строка 'pkg-resources', мешающая правильной установке пакетов. С целью ее удаления предлагается использовать следующую команду (проверено - работает):
 pip freeze | grep -v "pkg-resources" > requirements.txt
 
+
+ПОЛУЧЕНИЕ SSL-СЕРТИФИКАТА
+-------------------------
+Используем бесплатный сервис Let's Encrypt (https://letsencrypt.org).
+Сначала рекомендуется выбрать на сайте требуемые ОС и версии дистрибутивов. Далее все можно делать в командной строке:
+1. sudo snap install --classic-certbot - устанавливаем пакет
+2. sudo ln -s /snap/bin/certbot /usr/bin/certbot - создаем ссылку
+3. sudo certbot --nginx - запускаем сканирование и настройку nginx для получения сертификата
+4. отвечаем "y" на ряд вопросов (эл. почту указываем настоящую) и проверяем, те ли домены нашел бот (если те, то просто жмем на Enter)
+5. в случае, если сертификаты будут созданы, ссылки на них можно увидеть в файле nginx.conf проекта, а в брауземе схема url автоматически поменяется на https://
+
+
+ДЕПЛОЙ НА AWS С ПОМОЩЬЮ UWSGI & NGINX
+-------------------------------------
+Прежде всего, необходимо поставить приложение uwsgi: находясь в виртуальной среде выполнить команду
+pip install uwsgi
+и установить сервер nginx:
+sudo apt install nginx
+
+1. В каталоге config проекта cоздаем файл uwsgi.ini с примерно такими настройками:
+
+[uwsgi]
+
+projectname = config # название конфигурационного каталога (где лежит settings.py и др.)
+base = /home/ubuntu/deploy_uwsgi
+master = true
+virtualenv = /home/ubuntu/deploy_uwsgi/env
+pythonpath = %(base)
+chdir = %(base)
+env = DJANGO_SETTINGS_MODULE=%(projectname).settings
+module = config.wsgi:application
+socket = /tmp/%(projectname).sock
+chmod-socket = 666
+disable-logging=True
+
+2. В том же каталоге создаем файл nginx.conf, где для начала прописываем следующее:
+
+upstream config {
+        server unix:///tmp/config.sock;
+}
+
+server {
+        server_name www.docent63.ru docent63.ru;
+        location / {
+                include /etc/nginx/uwsgi_params;
+                uwsgi_pass config;
+        }
+
+ 
+3. На сервере необходимо применить созданные настройки, для чего:
+
+3.1. в основном конфигурационном файле сервера nginx по адресу /usr/nginx/nginx.conf прописываем в словаре http {
+	include /home/ubuntu/deploy_uwsgi/config/nginx.conf;
+	...
+}
+
+3.2. запускаeм сервер nginx: sudo systemctl start nginx (другие команды: status, stop)
+и приложение (по сути, тоже сервер) uwsgi (команда работает из одного каталога с файлом - инициирует этот самый файл): uwsgi --ini uwsgi.ini
+Для удобства просмотра статуса сервера и его запуска/остановки создал следующий скрипт (и поместил его как файл kick по адресу /usr/local/bin - находящиеся здесь файлы могут быть запущены из любого места ФС): 
+
+if ps aux | grep uwsgi | grep -v grep > /dev/null # проверяем, если процесс от uwsgi
+then
+        echo "Now uwsgi-server is running."
+
+else
+        echo "Now uwsgi-server in stopping"
+fi
+
+read -p "Do you wish to change this status? (y/n) " yn
+
+ps aux | grep uwsgi | grep -v grep > kickfile # пишем результат поиска процессов в файл 
+file=kickfile
+
+case $yn in # проверяем наличие в файле содержимого - если он не пустой, останавливаем uwsgi (kill -9), а если он пуст (т.е. процессов uwsgi не обнаружено), запускаем uwsgi-сервер (файл kick создается и тут же дропится)
+        [Yy]* ) if [[ -s $file ]]; then ps aux | grep uwsgi | grep -v grep | awk '{print $2}' | xargs kill -9 && echo "Stopped"; else /home/ubuntu/deploy_uwsgi/env/bin/uwsgi --ini /home/ubuntu/deploy_uwsgi/config/uwsgi.ini; fi; rm kickfile 2> /dev/null; exit;;
+        [Nn]* ) rm kickfile 2> /dev/null; exit;;
+esac
+
