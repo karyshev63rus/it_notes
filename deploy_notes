@@ -218,3 +218,68 @@ case $yn in # проверяем наличие в файле содержимо
         [Nn]* ) rm kickfile 2> /dev/null; exit;;
 esac
 
+
+ДЕПЛОЙ С GUNICORN & NGINX
+-------------------------
+В виртуальном окружении устанавливается gunicorn: pip istall gunicorn (предполагается, что nginx к этому моменту уже установлен)
+
+1. Создаются файлы, связанные с gunicorn:
+1.1. /etc/systemd/system/gunicorn.socket
+[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListerStream=/run/gunicorn.sock
+
+[Install]
+WantedBy=sockets.target
+
+1.2. /etc/systemd/system/gunicorn.service
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=mick
+Group=www-data
+WorkingDirectory=/home/mick/django_projects/deploy_gunicorn
+ExecStart=/home/mick/django_projects/deploy_gunicorn/venv/bin/gunicorn \
+	--access-logfile - \
+	--workers 3 \
+	--bind unix:/run/gunicorn.sock \
+	config.wsgi:application
+
+[Install]
+WantedBy=multy-user.target
+
+Важно помнить, что, как правило, каталог конфигураций проекта у меня называется config, и если его приходится переименовывать вручную, что это надо делать (помимо названия самой папки) еще в трех файлах: manage.py, wsgi.py и settings.py (здесь в двух местах: настройках urls и wsgi). В  этом примере указаны пути для конкретного проекта и в любом другом случае должны быть изменены. 
+
+2. Настройки в созданных файлах должны быть активированы: 
+sudo systemctl start gunicorn.socket
+sudo systemctl enable gunicorn.socket
+sudo systemctl status gunicorn.socket
+
+3. Настройка сервера nginx (может быть использована и уже использована для случая с uwsgi)
+Вместо создания файла nginx.conf в конфиге проекта логичнее работать с домашним каталогом nginx:
+3.1. создаем файл /etc/nginx/sites-available/deploy_gunicorn 
+server {
+	listen 80;
+	server_name docent63.ru www.docent63.ru;
+
+	location / {
+		include proxy_params;
+		proxy_pass http://unix:/run/gunicorn.sock;
+	}
+}
+
+3.2. Далее из этого каталога (как понятно из его названия, содержащего настройки имеющихся в наличии сайтов) делается ссылка на каталог доступных сайтов:
+sudo ln -s /etc/nginx/sites-available/deploy_gunicorn /ect/nginx/sites-enabled
+
+3.3. тестируем настройки и перезапускаем nginx
+sudo nginx -t
+sudo systemctl restart nginx
+sudo ufw allow 'Nginx Full' (открываем файервол для разрешения нормального трафика на 80 порту, но это опционально, должно работать и так)
+
+На этом настройка gunicorn+ngins заканчивается, браузер должен отображать страницу задеплоенного сайта.
+
