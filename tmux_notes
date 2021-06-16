@@ -102,8 +102,5 @@ then
 fi
 tmux attach -t development
 
-
-
-
-
+tmux source-file ~/.tmux.conf - запускает сделаные настройки конфига в действие
 
