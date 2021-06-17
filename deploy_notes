@@ -283,3 +283,49 @@ sudo ufw allow 'Nginx Full' (открываем файервол для разр
 
 На этом настройка gunicorn+ngins заканчивается, браузер должен отображать страницу задеплоенного сайта.
 
+
+BASH-скрип для запуска uwsgi-сервера на домашней машине командой check 
+-----------------------------------------------------------------------
+
+#! /bin/bash
+
+base_dir=/home/mick/DjangoProjects/docent63
+
+if ps aux | grep uwsgi | grep -v grep >/dev/null 
+then
+	echo "uWSGI-server is running."
+else
+	echo "uWSGI-server is stopping."
+fi
+
+if echo "$PWD" | grep "$LOGNAME" > /dev/null
+	then
+	read -p "Do you wish to change this status? (y/n) " yn
+
+	ps aux | grep uwsgi | grep -v grep > kickfile
+
+	file=kickfile
+
+	case $yn in
+        	[Yy]* ) if [[ -s $file ]] 
+			then 
+				mv "$base_dir"/config/_dev.py "$base_dir"/config/dev.py
+			        ps aux | grep uwsgi | grep -v grep \
+				| awk '{print $2}' | \
+				xargs kill -9 && echo "Stopped" && rm kickfile 
+			else 
+				mv "$base_dir"/config/dev.py "$base_dir"/config/_dev.py
+				rm kickfile && \
+				"$base_dir"/env/bin/uwsgi --ini "$base_dir"/config/uwsgi.ini 
+			fi 
+			exit;;
+        	[Nn]* ) rm kickfile 
+			exit;;
+	esac
+
+else
+	echo 'Try it from local user area.'
+fi
+
+
+
