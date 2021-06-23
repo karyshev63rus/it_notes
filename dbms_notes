@@ -15,7 +15,7 @@ sudo apt-get --purge remove postgresql postgresql-12  postgresql-client  postgre
 -------------------
 1. sudo service postgresql start - запустить сервер с БД 
 2. sudo -i -u postgres psql - открыть сессию работы с БД 
-3. CREATE DATABASE <dbname>; - создать БД для проекта
+3. CREATE DATABASE <dbname>; - создать БД для проекта (здесь можно добавить OWNER postgres, и всё!)
 4. CREATE USER 	<dbusername> WITH PASSWORD '<password>'; - создать пользователя с паролем (кавычки обязательны)
 5. GRANT ALL PRIVILEGES ON DATABASE <dbname> TO <dbusername>; - права админа БД
 6. \q - закрыть сессию
