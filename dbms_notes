@@ -98,4 +98,8 @@ python manage.py dbshell - открывается консоль использ�
 
 - "POSTGRES_HOST_AUTH_METHOD=trust" - указываем в docker-compose.yml вместо пароля
 
+Построение er-диаграмм ('entity-relationship') в проекте django:
+1. sudo apt install graphviz 
+2. pip install django-extansions (делаем под env внутри проекта и прописываем в settings)
+3. python manage.py graph_models -a -o erd.png (здесь присвоено произвольное имя 'erd')
 
