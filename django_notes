@@ -2367,3 +2367,15 @@ Running migrations:
 python manage.py dumpdata <appname.modelname> > <filename>.json - выгрузка данных из таблицы БД в фикстуру
 python manage.py loaddata <path to filename.json> - загрузка данных в БД из фикстуры
 
+Приложение django-extensions - крайне полезное в плане функциональности приложение
+pip install django-extenstions - установка производится, разумеется, под env
+apt install grahpviz - ставим этот пакет для того, чтобы строить er-диаграммы
+далее редактируется settings.py:
+GRAPH_MODELS = {
+    'all_applications': True,
+    'group_models': True,
+}
+pm graph_models -a -o mydb_erd.png (имя взято произвольно, получаем схему связи таблиц БД)
+pm shell_plus - включает консоль, автоматически импортирующую все таблицы БД проекта
+
+
