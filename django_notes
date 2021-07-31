@@ -2378,4 +2378,8 @@ GRAPH_MODELS = {
 pm graph_models -a -o mydb_erd.png (имя взято произвольно, получаем схему связи таблиц БД)
 pm shell_plus - включает консоль, автоматически импортирующую все таблицы БД проекта
 
+Примеры создания и загрузки фикстур:
+------------------------------------
+python manage.py dumpdata app.model_name --indent 4 > fixtures/file_name.json
+python manage.py loaddata fixtures/model_name.json --app app.model_name
 
