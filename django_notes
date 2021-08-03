@@ -2382,4 +2382,5 @@ pm shell_plus - включает консоль, автоматически им
 ------------------------------------
 python manage.py dumpdata app.model_name --indent 4 > fixtures/file_name.json
 python manage.py loaddata fixtures/model_name.json --app app.model_name
+python manage.py dumpdata auth.User --indent 4 > fixtures/users.json
 
