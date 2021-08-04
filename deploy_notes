@@ -346,5 +346,7 @@ ExecStart=/home/your_username/your_projdir/venv/bin/celery worker -A celery_work
 [Install]
 WantedBy=default.target
 
-Далее запуск celery осуществляется обычным способом: sudo service celery start (другие полезные команды: status и stop)
+Далее запуск celery осуществляется обычным способом: sudo service celery start (другие полезные команды: status и stop). 
+Важно!!! Перед запуском celery необходимо перезапустить все фоновые процессы следующей командой: 
+sudo systemctl daemon-reload
 
