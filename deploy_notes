@@ -328,4 +328,23 @@ else
 fi
 
 
+CELERY-инициализация на сервере AWS
+-----------------------------------
+При развертывании приложения на сервере (AWS) возникла проблема: сервис celery  запускался только в активном режиме, т.е. после команды запуска перехватывал управление терминалом, и при закрытии терминала отказывался обрабатывать задачи, которые перед ним ставились. Было перепробовано несколько решений, в т.ч. и те, которые в конце команды запуска используют, например, & или --detach. Но работающим решением стало создание соответвующей службы: celery.service. Файл с таким названием создается в /etc/systemd/system/ и включает следующее:
+
+[Unit]
+Description=Celery Service
+After=network.target
+
+[Service]
+User=your_username
+WorkingDirectory=/home/your_username/your_projdir
+Environment="PATH=/home/your_username/your_projdir/venv/bin"
+ExecStart=/home/your_username/your_projdir/venv/bin/celery worker -A celery_worker.celery --loglevel=info
+# здесь команду 'worker -A celery_worker.celery' я заменил на свою 'celery -A celery config worker -l info'
+
+[Install]
+WantedBy=default.target
+
+Далее запуск celery осуществляется обычным способом: sudo service celery start (другие полезные команды: status и stop)
 
