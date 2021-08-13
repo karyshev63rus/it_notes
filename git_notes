@@ -855,5 +855,5 @@ git blame <filename> - просмотр авторов коммитов
 
 git gc - команда приводит репо в порядок (похоже, что gc - это garbare collector)
 
-git origin -d <name_of_branch_that_need_to_delete> - удалить ветку из удаленного репо
+git push origin -d <name_of_branch_that_need_to_delete> - удалить ветку из удаленного репо
 
