@@ -350,3 +350,6 @@ WantedBy=default.target
 Важно!!! Перед запуском celery необходимо перезапустить все фоновые процессы следующей командой: 
 sudo systemctl daemon-reload
 
+Копирование данных (файлов) на удаленный сервер (например, aws):
+scp -i <путь к ключу .pem> <путь к копируемому файлу> ubuntu@ec2...amazonaws.com:/home/ubuntu/ 
+
