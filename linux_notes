@@ -655,3 +655,6 @@ systemctl list-unit-files service --state running - выведет только 
 ... disable <service_name> - исключение из вышеуказанного списка
 ... is-enabled <service_name> - проверка нахождения в вышеуказанном списк
 
+python -c 'print("Hi there!")' - питон исполнит содержимое строки в баш
+
+
