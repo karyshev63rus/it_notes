@@ -657,4 +657,5 @@ systemctl list-unit-files service --state running - выведет только 
 
 python -c 'print("Hi there!")' - питон исполнит содержимое строки в баш
 
+Команда, позволяющая генерировать пароль, которым можно потом заменить текущий хэш, что записан в /etc/shadow: openssl passwd -1 -salt xyz yourpass
 
