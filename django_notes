@@ -2384,3 +2384,8 @@ python manage.py dumpdata app.model_name --indent 4 > fixtures/file_name.json
 python manage.py loaddata fixtures/model_name.json --app app.model_name
 python manage.py dumpdata auth.User --indent 4 > fixtures/users.json
 
+Если данные с локального сервера не читаются (как это было с react-native + expo, который не мог принять данные с localhost:8000), можно использовать ngrok:
+./ngrok http 8000 и далее прописываем в settings.ALLOWED_HOSTS = ['<данные ngrok.io>'], после чего запрос шлем уже не на http://localhost:8000, а на https://<данные ngrok.io>
+
+
+
