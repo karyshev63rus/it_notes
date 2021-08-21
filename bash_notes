@@ -915,3 +915,97 @@ grep -C 3 aliases .bashrc - выведет все строки с подстро
 Ctr + r - рекурсивный поиск по истории команд (по мере ввода названия система выводит те или иные команды, наиболее подходящие для введенной последовательности)
 
 
+BASH И КИБЕРБЕЗОПАСНОСТЬ
+========================
+Запуск команд bash из винды (cmd):
+bash -c 'pwd' или, как вариант, ubuntu -c 'pwd'
+
+Определение типа объекта (встроенная функция, ключевое слово и т.д.):
+type -t pwd type -t ls type -t if
+
+Список доступных команд: compgen -k
+
+Команда handywork обработает данные из файла data.in, после чего результаты запишутся в файл results.out: 
+handywork < data.in > results.out
+как варианты (с потоком ошибок)
+handywork < data.in > results.out 2>er.msgs
+handywork < data.in > results.out 2>&1
+
+Записывать в файл и одновременно выводить на экран результаты работы команды:
+handywork < data.in | tee results.out
+
+Дописывать в файл stdout и stderr результатов работы программы:
+handywork < data.in &>> results.out 
+
+Запись пингования в файл лога в фоновом режиме (отличный пример для демонстрации работы команды tail: tail -f ping.log):
+ping 192.168.01.04 > ping.log &
+
+Получение списка задач, выполняемых в фоновом режиме:
+jobs
+
+Выведение задач из фонового режима (номер задачи берется из результатов предыдущей команды):
+fg 1
+
+Возвращает общее количество параметров, переданных в скрипт:
+$#
+
+Возвращает код выполнения программы (0, если успех, иначе неуспех):
+$? (используется с условными операторами if then else fi)
+
+Извлекает пользовательский ввод из stdin:
+1. печатаем read MYVAR, после чего вводим, например, Hi there!
+2. печатаем echo $MYVAR и получаем вывод на экран Hi there!
+
+if [[ -e $FILENAME ]]
+then
+echo file $FILENAME is exists
+else
+echo to file $FILENAME
+fi
+
+if [[ $VAL -lt $MIN ]]
+then
+echo "$VAL is too small"
+fi
+
+if (( $VAL < 12 ))
+then
+echo "$VAL is less than 12"
+fi
+
+if (( $? )); then echo 'previous command failed'; fi
+
+Операторы сгруппированы двумя ключевыми словами - do и done:
+i = 0
+while (( i < 100 ))
+do
+echo i
+let i++
+done
+
+while ls | grep -q pdf
+do
+echo -n 'file pwd was found: '
+pwd
+cd ..
+done
+
+for ((i=0; i<100; i++))
+do
+echo $i
+done
+
+for VAL in $(ls | grep pdf) {0..5}
+do
+echo $VAL
+done
+
+{first..last..step}
+
+Канонический вид определения функции:
+function myfunc () {
+# это тело функции
+}
+И вызов функции:
+myfunc 123 'abc' /root
+
