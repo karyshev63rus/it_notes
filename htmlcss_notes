@@ -1,5 +1,22 @@
 Здесь будет информация об основах верстки
 -----------------------------------------
+Варианты верстки flex и grid имеют много общего, что хорошо
 
-
+display: flex / display: grid - здесь определяется выбор верстки
+Например, 
+body {
+    background-color: red;
+    ....
+}
+.container {
+    display: grid;
+    grid-template-column: 1fr 1fr 1fr;
+    grid-auto-rows: 100px;
+    ...
+}
+.container > div {
+    ...
+    align-items: center;
+    justify-content: center;
+}
 
