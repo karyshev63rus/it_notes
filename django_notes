@@ -2388,4 +2388,7 @@ python manage.py dumpdata auth.User --indent 4 > fixtures/users.json
 ./ngrok http 8000 и далее прописываем в settings.ALLOWED_HOSTS = ['<данные ngrok.io>'], после чего запрос шлем уже не на http://localhost:8000, а на https://<данные ngrok.io>
 
 
+Mastering Django 2 & 3 - Django's Models (основные выражения)
+-----------------------------------------
+Решил не мелочиться и пройти этот проект по-взрослому: повторить код
 
