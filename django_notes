@@ -2433,6 +2433,8 @@ class BasedViewRegions(TemplateView):
         context['regs'] = ['Мск', 'СПб', 'Самара', 'Урал', 'Камчатка']
         return context
 
-
+ListView и DetailView
+---------------------
+итерируемый объект: object_list -> context_object_name = 'название, которое будет фигурировать в шаблоне'
 
 
