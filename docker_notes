@@ -327,7 +327,12 @@ volumes:
 sudo apt-get purge -y docker-engine docker docker.io docker-ce docker-ce-cli
 sudo apt-get autoremove -y --purge docker-engine docker docker.io docker-ce 
 
+
+Курс Антона Ларичева
+--------------------
 docker rename <current name> <wanted name> - переименовывает контейнер
-
-
+docker save --output <image name>.tar <folder name куда сохраняет архив> - сохраняет образ на диск
+mkdir <smth folder> - создаем папку
+tar xvf <image name>.tar -C <shtml folder> - и копируем в нее данные архива
+/var/lib/docker - каталог, где все хранится
 
