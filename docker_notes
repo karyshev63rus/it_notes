@@ -326,3 +326,8 @@ volumes:
 ---------------
 sudo apt-get purge -y docker-engine docker docker.io docker-ce docker-ce-cli
 sudo apt-get autoremove -y --purge docker-engine docker docker.io docker-ce 
+
+docker rename <current name> <wanted name> - переименовывает контейнер
+
+
+
