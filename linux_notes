@@ -1011,3 +1011,9 @@ ch. 16 Database
 sudo apt install mysql-server-8.0 - установка СУБД Mysql
 vim /etc/mysql/myslg.conf.d/mysgld.cnf - редактируем конфиг
 
+КОНЕЦ
+-----
+
+
+ldd /bin/ls - показывает зависимости для данной команды (файла)
+
