@@ -336,3 +336,7 @@ mkdir <smth folder> - создаем папку
 tar xvf <image name>.tar -C <shtml folder> - и копируем в нее данные архива
 /var/lib/docker - каталог, где все хранится
 
+docker-compose -f docker-compose.prod.yml -f docker-compose.dev.yml config - покажет объединенный конфиг
+
+docker search -no-trunc <имя искомого репо, например, python> - покажет имеющиеся на registry репо
+
