@@ -351,7 +351,7 @@ man awk
 
 id - узнать, в какой группе состоит пользователь (который эту команду и вводит)
 
-/etc/passwd /etc/shadow /ect/group /etc/gshadow (в последнем хранятся хэши паролей групп) /etc/sudoers
+/etc/passwd /etc/shadow /etc/group /etc/gshadow (в последнем хранятся хэши паролей групп) /etc/sudoers
 
 grep ^root /etc/* 2> /dev/null - не будут выведены ошибки при попытках прочитить директории как файл
 
