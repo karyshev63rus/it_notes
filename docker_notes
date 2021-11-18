@@ -349,3 +349,5 @@ docker search -no-trunc <имя искомого репо, например, pyt
 RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
 Эта команда позволяет делать образ меньшим по объему (процентов на 40), но сильно заполняет память, после чего остается только перезагружать комп (это про винду).
 
+docker-compose exec db psql --username=<username of db role> --dbname=<name of db> - позволяет войти в бд в контейнере докера
+

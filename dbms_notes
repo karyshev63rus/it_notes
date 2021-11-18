@@ -55,6 +55,37 @@ sudo passwd postgres - устанавливаем пароль, открывае
 cd /var/run/; mkdir postgresql; chown postgres:postgres postgresql - и, наконец-то, сервер стал запускаться и после перезагрузки системы (т.е. компа)
 ---------------------------------
 
+Создание бд в скрипте docker-compose
+------------------------------------
+Если у нас все 'test' (USER, PASSWORD, NAME), то в сервисе web прописываем:
+...
+services:
+    web:
+        command: >
+            bash -c 'while !</dev/tcp/db/5432; do sleep 1; done;
+            python manage.py runserver 0.0.0.0:8000'
+...
+        environment:
+            DATABASE_URL=postgresql://test:test@db:5432/test
+При этом, что здесь где (т.е. на какой позиции в этой адресной строке находится user, password и name), не выяснял. Однако, такой прием дает возможность создавать бд без написания файла sql.ini (с командами на SQL для создания нужной бд).
+
+Прописывание credencials (USER, NAME, PASSWORD) в settings.py можно заменить следующими строками (предварительно надо инсталлировать django-environ):
+...
+import environ
+env = environ.Env()
+...
+DATABASES = {
+    'default': env.db(),
+}
+
+И вся эта конструкция нормально работает с load_dotenv(), т.е. SECRET_KEY прописал в .env, а кренделя бд - в докер-композе.
+
+Работа с psql в контейнере docker
+---------------------------------
+команда позволяет войти в бд в контейнере докера:
+docker-compose exec db psql --username=<username of role> --dbname=<name of db>
+
+
 =====
 REDIS
 =====
