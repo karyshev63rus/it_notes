@@ -883,7 +883,23 @@ sudo gitlab-runner verify
 
 5. На сайте создаем или модифицируем файл gitlab-ci.yml, где прописываем те задачи, которые должен будет выполнить раннер. Сохраняя изменения, мы фактически запускаем созданный раннер. Результаты его работы можно посмотреть в pipline или jobs опции CI/CD в левой боковой панели.
 
-Конфиг раннера лежит по пути /etc/gitlab-runner/config.toml 
+Конфиг раннера лежит по пути /etc/gitlab-runner/config.toml и выглядит примерно так (в нем обязательно должны быть указаны данные привязанного и активного раннера, иначе ci работать не будет - соответствующая job впадет в состояние stuck):
+
+concurrent = 1
+check_interval = 0
+[session_server]
+  session_timeout = 1800
+[[runners]]
+  name = "googlec"
+  url = "https://gitlab.com/"
+  token = "V-aTXW6oFeGmeTns6GzA"
+  executor = "shell"
+  [runners.custom_build_dir]
+  [runners.cache]
+    [runners.cache.s3]
+    [runners.cache.gcs]
+    [runners.cache.azure]
+
 
 Команды cli для gitlab-runner:
 
