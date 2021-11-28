@@ -1,0 +1,30 @@
+Разработка web-приложения на основе restapi 
+(Django -> DjangoRestFramework)
+-------------------------------------------
+
+В Django 3.0 не поддерживается swagger, поэтому нужны пути обхода, и они есть:
+вариант 1. использовать пакет drf-yasg;
+вариант 2. добавить кода в приложение:
+2.1. создаем в каталоге приложения папку templatetags
+2.2. создаем в templatetags файл staticfiles.py с кодом:
+
+from django import template
+from django.templatetags.static import (do_static as _do_static,static as _static,)
+
+register = template.Library()
+
+def static(path):
+    return _static(path)
+
+@register.tag('static')
+def do_static(parser, token):
+    return _do_static(parser, token)
+
+2.3. в INSTALLED_APPS файла settings.py приложение должно быть выше по списку, чем rest_framework_swagger
+
+Далее запуск сервера, переход, и должна отобразиться страница swagger
+
+
+
+
+
