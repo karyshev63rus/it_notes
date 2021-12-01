@@ -1018,3 +1018,5 @@ ldd /bin/ls - показывает зависимости для данной к
 
 find . -type f | xargs grep -l <path_A> | xargs sed -i -e 's!<path_A>!<path_B>!g' - заменяем в файлах подстроки пути с А на В
 
+sudo update-alternatives --config x-terminal-emulator - возможность выбрать терминал из списка установленных терминалов
+
