@@ -351,3 +351,5 @@ RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
 
 docker-compose exec db psql --username=<username of db role> --dbname=<name of db> - позволяет войти в бд в контейнере докера
 
+docker build -f <name of dockefile> -t <name of building image> <location of context, for example . > - сборка образа из докер-файла с именем, отличным от обычного Dockerfile, с указанием имени собираемого образа и расположения контекста (т.е. того, на основе чего докер-файл будет собирать образ).
+
