@@ -872,7 +872,7 @@ GITLAB
 curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh" | sudo bash
 
 2. Устанавливаем пакет
-sudo apt unstall gitlab-runner
+sudo apt install gitlab-runner
 
 3. Регистрируем раннер
 sudo gitlab-runner register 
