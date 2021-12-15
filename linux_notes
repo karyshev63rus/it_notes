@@ -1020,3 +1020,5 @@ find . -type f | xargs grep -l <path_A> | xargs sed -i -e 's!<path_A>!<path_B>!g
 
 sudo update-alternatives --config x-terminal-emulator - возможность выбрать терминал из списка установленных терминалов
 
+find -maxdepth 2 -type f -name '*.py' -exec ls -l {} + означает, что ищем отсюда и на два уровня вниз файлы с расширением .py и выводим их подробный список (фигурные скобки - это ссылка на результат работы команды find, а знак + указывает на конец команды exec).
+
