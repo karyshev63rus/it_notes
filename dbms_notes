@@ -138,3 +138,16 @@ python manage.py dbshell - открывается консоль использ�
 2. pip install django-extansions (делаем под env внутри проекта и прописываем в settings)
 3. python manage.py graph_models -a -o erd.png (здесь присвоено произвольное имя 'erd')
 
+======
+SQLITE
+======
+sudo apt install sqlite3 - установка
+
+sqlite3 db.sqlite3 - вход в консоль
+
+sqlite> .tables - просмотр таблиц
+
+sqlite> .schema users_customer - просмотр схемы таблицы
+
+sqlite> .exit - выход
+
