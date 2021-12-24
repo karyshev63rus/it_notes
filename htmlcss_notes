@@ -136,3 +136,85 @@ border: 1px solid #000;
   drid-template-columns: repeat(auto-fit, minmax(150px, auto)); (auto-fill)
 }
 
+
+Верстка на основе flexbox
+-------------------------
+начальная настройка css
+ * {
+  margin: 0;
+  padding: 0;  
+}
+
+body {
+  font-family: Arial;
+  font-size: 16px;
+}
+
+.container {
+  max-width: 1200px;
+  min-width: 320px;
+  height: 500px;
+  background-color: #eee;
+  margin: 100px auto;
+  padding: 10px 0;
+}
+
+.container_element {
+  border: 1px solid #000;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  margin: 20px;
+}
+
+----------
+применяем flex
+
+.container {
+  display: flex; (inline-flex) // блоки были расположены как стэк, а теперь рядом друг с другом
+}
+
+---------------
+св-ва, применяемые к flex-контейнеру
+
+flex-direction
+
+.container {
+  display: flex;
+  flex-direction: row; //значение по умолчанию - главная ось (горизонтальная), row-reverse поменяет направление справа-налево, column - оси (главная и поперечная) меняются местами, и блоки будут расположены как стэк и растянутся вдоль поперечной оси (т.е. горизонтально), column-reverse - то же, но снизу вверх.
+  flex-wrap: nowrap; (wrap, wrap-reverse) // блоки как бы оборачиваются границами строки
+}
+----------------
+св-ва, применяемые в целом к блокам flex-контейнера
+
+.container {
+  justify-content: flex-start; (flex-end, flex-center, space-between, spase-around) - расположение блоков вдоль главной (горизонтальной) оси
+  align-items: stretch; определяет расположение блоков по поперечной (вертикальной) оси (используются те же flex-..., а также baseline)   
+}
+
+.container {
+  ...
+  flex-wrap: wrap;
+  align-content: flex-start; - примерно то же, но работает при наличии wrap
+}
+
+------------------
+св-ва, применяемые к отдельным блокам (работает только в направлении поперечной оси)
+
+.container_element:first-child { // .container_element:nth-child(2)
+  align-self: flex-start;(flex-end, center, stretch)
+  order: 0; (1,2,... -1)
+}
+
+-------------------------
+.container {
+  display: flex;
+  flex-direction: columns;
+  flex-wrap: wrap;
+}
+
+.container_element {
+  flex-grow: 0; (если будет 1, элемент займет всю доступную ширину контейнера)
+  flex-basis: 300px;
+  flex-shrink: 1; (если будет 0, элементы ужиматься не будут)
+}  
+
