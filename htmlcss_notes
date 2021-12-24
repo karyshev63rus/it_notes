@@ -20,3 +20,119 @@ body {
     justify-content: center;
 }
 
+
+Верстка "на гридах"
+-------------------
+----------------------
+lorem25 - создаст произвольный текст из 25 слов
+
+.grid {
+  display: grid;
+  grid-template-columns: 150px 1fr 150px; 
+  grid-template-columns: 150px min-content max-content 150px; 
+  grid-template-columns: 150px minmax(100px, 1fr) minmax(200px, 300px) 150px;
+  grid-template-rows: minmax(100px 1fr) 150px 200px;
+  grid-template-columns: [left] 200px [content] 1fr [content] 1fr [right] 200px;
+  grid-template-columns: [left] 200px repeat(2, [content] 1fr) [right] 200px;
+  grid-template-rows: [top] 100px [middle] 100px [bottom] 100px;
+  grid-column-gap: 20px;
+  grid-row-gap: 10px;
+  grid-gap: 10px 20px;
+}
+
+.grid_element {
+  grid-column-start: 4;
+  grid-row-start: 3;
+  grid-column-end: 5;
+  grid-row-end: 3;
+  grid-column-end: -1;
+  grid-row-end: -1;
+  grid-column: 4 / -1;
+  grid-row: 3 / -1;
+  grid-area: 4 / 3 / -1 / -1;
+}
+
+------------------------
+.grid {
+  display: grid;
+//  grid-template-columns: minmax(70px, 250px) repeat(3, auto) minmax(70px, 250px);
+//  grid-template-rows: repeat(5, 2fr);
+  grid-gap: 10px;
+  grid-templare-areas:
+      'header header header header header'
+	  'aside-left content content content content aside-right'
+	  'aside-left content content content content aside-right'
+	  'aside-left content content content content aside-right'
+	  'footer footer footer footer footer'; (вместо элементов можно указывать точки, тогда на месте этих элементов будет пустое поле)
+}
+
+.grid-element {
+...
+padding: 20px;
+border-radius: 20px;
+text-align: center;
+border: 1px solid #000;
+}
+
+.header {
+//  grid-column: 1 / -1;
+  grid-area: header;
+}
+
+.aside-left {
+//  grid-row: span 3;
+  grid-area: aside-left;
+}
+
+.content {
+//  grid-column: 2 / 5;
+//  grid-row: span 3;
+  grid-area: content;
+}
+
+.aside-right {
+//  grid-row: span 3;
+  grid-area: aside-right;
+}
+
+.footer {
+//  grid-column: 1 / -1;
+  grid-area: footer;
+}
+
+---------------
+
+.grid {
+  grid: display;
+  grid-template-columns: repeat(3, 150px);
+  grid-template-rows: repeat(3, 150px);
+  justify-content: start; (end, center, stretch, space-between, space-around, space-evenly) // выравнивание по горизонтали
+  align-content: start; // выравнивание по вертикали
+  justify-items: start; // то же, но для отдельных строк и столбцов
+  align-items: start;
+}
+
+.first { // задан класс одному из элементов
+  justify-self: start; //  то же, что и для всех элементов, но применительно
+  align-self: start; // к отдельным элементам
+}
+
+----------------------
+
+.grid {
+  display: grid;
+  grid-auto-flow: column; (row) // элементы распределятся, соответственно, по колонкам и по строкам
+  grid-auto-flow: row dense; // размещение элементов происходит "немного по-другому"
+}
+
+.grid-element:nth-child(3) {
+  grid-column: span 2;
+  order: 1;
+}
+
+------------------- 
+.grid {
+  display: grid;
+  drid-template-columns: repeat(auto-fit, minmax(150px, auto)); (auto-fill)
+}
+
