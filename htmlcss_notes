@@ -133,7 +133,7 @@ border: 1px solid #000;
 ------------------- 
 .grid {
   display: grid;
-  drid-template-columns: repeat(auto-fit, minmax(150px, auto)); (auto-fill)
+  grid-template-columns: repeat(auto-fit, minmax(150px, auto)); (auto-fill)
 }
 
 
@@ -217,4 +217,54 @@ flex-direction
   flex-basis: 300px;
   flex-shrink: 1; (если будет 0, элементы ужиматься не будут)
 }  
+
+Стили Flexbox:
+--------------
+ flex-direction
+ order
+ justify-content
+ align-items
+ align-self
+ flex-wrap
+ align-content
+ flex-grow
+ flex-shrink
+ flex-basis
+
+Стили Grid:
+-----------
+ grid-template-columns
+ grid-template-rows
+ column-gap
+ row-gap
+ gap
+ grid-template-areas
+ grid-column-start
+ grid-column-end
+ grid-row-start
+ grid-row-end
+ grid-column
+ grid-row
+ grid-template
+ justify-items
+ align-items
+ place-items
+ justify-content
+ align-content
+ place-content
+ justify-self
+ align-self
+ place-self
+ grid-auto-rows
+ grid-auto-flow
+ grid-auto-columns
+Ключевые слова и функции Grid:
+ repeat
+ fr
+ minmax
+ auto-fit
+ auto-fill
+ min-content
+ max-content
+
 
