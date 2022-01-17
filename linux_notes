@@ -1028,3 +1028,5 @@ sudo journalctl --vacuum-size=100 M
 Установка максимального срока хранения логов
 journalctl --vacuum-time=1years
 
+select-editor - команда для выбора редактора текствых файлов
+
