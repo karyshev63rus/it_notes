@@ -1,0 +1,292 @@
+TypeScript
+----------
+Это нужная штука, и надо разобраться, как она работает (ну, хотя бы попытаться).
+
+Книга Профессиональный Typescript. Разработка масштабируемых JavaScript-приложений (автор Борис Черной).
+Главное здесь - это примеры кода
+----------------------------------
+Глава 2 TypeScript с высоты птичьего полета
+Система типов - набор правил, используемых модулем проверки типов для присвоения типов программе
+let a: number = 1 // a является number
+let b: string = 'hello' // b является string
+let c: boolean[] = [true, false // c является массивом booleans
+3 + [1] против (3).toString() + [1].toString() - надо сделать свои намерения явными, тогда ошибки не будет
+-----------------------------------
+Глава 3 Подробно о типах
+function squareOf(n: number) {
+    return n * n
+}
+squareOf(2) //4
+squareOf('z') //error
+
+any - набор всех возможных значений
+---
+let a: any = 666 //any
+let b: any = ['danger'] //any
+let c = a + b //any
+
+unknown - если есть значений, чей тип вы узнаете позднее, вместо any примените unknown
+-------
+let a: unknown = 30 //unknown
+let b = a === 123 //boolean
+let c = a + 10// ошибка - объект имеет тип 'unknown'
+if (typeof a === 'number') {
+    let d = a + 10 //number
+}
+
+boolean
+-------
+let a =true //boolean
+var b = false //boolean
+const c = true  //true
+let d: boolean = true //boolean
+let e: true = true //true
+let f: true = false // ошибка - тип 'false' не может быть присвоен типу 'true'
+Литерал типа - тип, представляющий только одно знаение и ничто другое
+
+number
+------
+let a = 1234 //number
+var b = Infinity * 0.10 //number
+const c = 5678 //5678
+let d = a < b //boolean
+let e: number = 100 //number
+let f: 26.218 = 26.218 //26.218
+let g: 26.218 = 10 // ошибка - тип '10' не может быть присвоен типу '26.218'
+
+bigint
+------
+let a = 1234n //bigint
+const b = 5678n //5678n
+var c = a + b //bigint
+let d = a < 1235 //boolean
+let e = 88.5n //ошибка - литерал bigint должен быть целым числом
+let f: bigint = 100n //bigint
+let g: 100n = 100n //100n
+let h: bigint = 100 //ошибка - тип '100' не может быть присвоен типу 'bigint'
+
+string
+------
+let a = 'hello' //string
+var b = 'billy' //string
+const c = '!' //'!'
+let d = a + ' ' + b + c //string
+let e: sting = 'zoom' // stirng
+let f: 'john' = 'john' //'john'
+let g: 'john' = 'zoe' //ошибка - тип 'zoe' не может быть присвоен типу 'john'
+
+symbol - альтернатива строчных ключей в объектах
+------
+let a = Symbol('a') //symbol
+let b: symbol = Symbol('b') //symbol
+var c = a === b //boolean
+let d = a + 'x' //ошибка - оператор '+' не может быть применен к типу 'symbol'
+const e = Symbol('e') //typeof e
+const f: unique symbol = Symbol('f') //typeof f
+let g: unique symbol = Symbol('f') //ошибка - переменная, имеющая тип 'unique symbol', должна быть 'const'
+let h = e === e //boolean
+let i = e === f //ошибка - это условие всегда будет возвращать 'false', поскольку типы 'unique symbol' и 'unique symbol' не имеют сходства
+
+Объекты
+-------
+Структурная типизация - стиль программирования, в котором вас интересуют только конкретные свойства объекта, ане его имя (номинальная типизация). Другими словами, это утиная типизация.
+let a: object = {
+    b: 'x'
+}
+a.b //ошибка - свойство 'b' не существует в типе 'object'
+
+const a: {b: number} = {
+    b: 12
+} // по-прежнему {b: number}
+А что, если мы оставим явные аннотации и позволим TS делать свою работу?
+let a = {
+    b: 'x'
+} // {b: string}
+a.b //string
+Это еще один способ типизации объекта: синтаксис объектного литерала
+let a: {b: number} = {
+    b: 12
+} // {b: number}
+
+let c: {
+    firstName: string
+    lastName: string
+} = {
+    firstName: 'john',
+    lastName: 'barrowman'
+}
+
+class Person {
+  constructor(
+    public firstName: string,
+    public lastName: string
+  )
+}
+c = new Person('matt', 'smith')
+
+let a: {b:number}
+a = {} //ошибка - свойство 'b' отсутствует в типе '{}', но необходимо в типе '{b: number}'
+a = {
+  b: 1,
+  c: 2
+} //ошибка - тип '{b: number, c: number}' не может быть присвоен типу '{b: number}'
+
+Знак ? указывает на опциональность параметра
+let a: {
+  b: number
+  c?: string
+  [key: number]: boolean
+}
+Возможные варианты присвоения:
+a = {b: 1}
+a = {b: 1, c: undefined}
+a = {b: 1, c: 'd'}
+a = {b: 1, 10: true}
+a = {b: 1, 10: true, 20: false}
+a = {10: true} //ошибка - свойство 'b' упущено в типе '{10: true}'
+a = {b: 1, 33: 'red'} //ошибка - тип 'string'не может быть присвоен типу 'boolean'
+
+Модификатор readonly - не позволяет изменять поле после присвоения ему первого значения (своего рода const для свойств объекта)
+let user: {
+  readonly firstName: stirng
+} = {
+  firstName: 'abby'
+}
+user.firstName //string
+user.firstName = 'abbey with an e' //ошибка - невозможно присвоить к 'firstName', т.к. это свойство только для чтения
+
+let danger: {}
+danger = {}
+danger = {x: 1}
+danger = []
+danger = 2
+
+Синтаксис [key: T]: U называют сигнатурой индекса. С ее помощью вы сообщаете компилятору, что данный объект может содержать больше ключей. Читать его надо так: 'для этого объекта все ключи типа Т должны иметь значения типа U'
+let crew: {
+  [seatNumber: string]: string
+} = {
+  '34D': 'Boris Cherny',
+  '34E': 'Bill Gates'
+}
+
+Псевдонимы типов
+----------------
+Подобно тому как вы используете декларации (let, const и var) для объявления переменной, выступающей псевдонимом значения, вы также можете объявлять псевдоним типа, указывающий на тип:
+type Age = number
+type Person = {
+  name: string,
+  age: Age
+}
+let age: Age = 55
+let driver: Person = {
+  name: 'James May'
+  age: age
+}
+Дважды объявлять нельзя:
+type Color = 'red'
+type Color = 'blue' //ошибка - повтор идентификатора 'Color'
+
+Типы объединения и пересечения
+------------------------------
+type Cat = {name: string, purrs: boolean}
+type Dog = {name: string, barks: boolean, wags: boolean}
+type CarOrDogOrBoth = Cat | Dog
+type CatAndDog = Cat & Dog
+
+Массивы
+-------
+let a = [1, 2, 3] //number[]
+var b = ['a', 'b', 'c'] //string[]
+let c: string[] = ['a'] //string[]
+let d = [1, 'a'] //(string | number)[]
+const e = [2, 'b'] //(string | number)[]
+
+Кортежи
+-------
+let a: [number] = [1]
+let b: [string, string, number] = ['malcolm', 'gladwell', 1963]
+Поддерживают опциональные элементы:
+let trainFares: [number, number?][] = [
+  [3.75],
+  [8.25, 7.70],
+  [10.50]
+]
+Эквивалент:
+let moreTrainFares: ([number] | [number, number]) = [
+  ...
+]
+Поддерживают спред-(или рест- ?) операторы:
+let friends: [string, ...string[]] = ['Sara', 'Tali', 'Chloe', 'Claire']
+
+Массивы и кортежи только для чтения
+-----------------------------------
+let as: readonly number[] = [1, 2, 3] //readonly number[]
+let bs: readonly number[] = as.concat(4) //readonly number[]
+let three = bs[2] //number
+as[4] = 5 //ошибка - сигнатура индекса в типе 'readonly' допускает только чтение
+as.push(6) //ошибка - свойство 'push' не существует в типе 'readonly number[]'
+
+null, undefined, void и never
+-----------------------------
+void - это возвращаемый тип функции, которая не возвращает ничего явно (например, console.log)
+never - это тип функции, которая никогда ничего не возвращает (выбрасывает исключание или выполняется бесконечно):
+// (а) Функция, возвращающая число или null
+function a(x: number) {
+  if (x < 10) {
+    return x
+  }
+  return null
+}
+
+// (b) Функция, возвращающая undefined
+function b() {
+  return undefined
+}
+
+// (c) Функция, возвращающая void
+function c() {
+  let a = 2 + 2
+  let b = a * a
+}
+
+// (d) Функция, возвращающая never
+function d() {
+  throw TypeError('I always error')
+}
+
+// (e) Другая функция, возвращающая never
+function e() {
+  while (true)
+    { doSomething()
+  }
+}
+
+null - отсутствие значения
+undefined - переменная, которой не присвоено значение
+void - функция, не имеющая оператора return
+never - функция, никогда ничего не возвращающая
+
+Enum
+----
+Является способом перечисления возможных значений типа и представляет собой неупорядоченную структуру данных, которая сопоставляет ключи и значения.
+enum Language {
+  English,
+  Spanish,
+  Russian
+}
+Сделаем явным вывод из предыдущего примера:
+enum Language {
+  English = 0,
+  Spanish = 1,
+  Russian = 2
+}
+Извлечение значения:
+let myFirstLanguage = Language.Russian //Language
+let mySecondLanguage = Language[]
+
+Глава 4. Функции
+----------------
+
+
+
+
