@@ -286,7 +286,142 @@ let mySecondLanguage = Language[]
 
 Глава 4. Функции
 ----------------
+function add(a: number, b: number): number {
+  return a + b
+} 
 
+Способы объявления функций
+//Именованная функция
+function greet(name: string) {
+    return 'hello' + name
+}
 
+//Функциональное выражение
+let greet2 = function(name: string) {
+    return 'hello' + name
+}
 
+//Выражение стрелочной функции
+let greet3 = (name: string) => {
+    return 'hello' + name
+}
+
+//Сокращенное выражение стрелочной функции
+let greet4 = (name: string) =>
+    'hello' + name
+
+//Конструктор функции
+let greet5 = new Function('name', 'return "hello" + name')
+
+Предустановленные и опциональные параметры
+------------------------------------------
+function log(message: string, userId?: string) {
+    let time = new Date().toLoacaleTimeString()
+    console.log(time, message, userId || 'Not signed in')
+}
+можно переписать и так:
+function log(message: string, userId = 'Not signed in') {
+    let  time = new Date().toISOString()
+    console.log(time, message, useId)
+}
+или так:
+type Context = {
+    appId?: string
+    userId?: string
+}
+
+function log(message: string, context: Context = {}) {
+    let time = new Date().toISOString()
+    console.log(time, message, context.userId)
+}
+
+Оставшиеся параметры
+--------------------
+function sum(...numbers: number[]): number {
+    return numbers.reduce((total, n) => total + n, 0)
+}
+sum([1, 2, 3])
+
+Сигнатуры вызовов функций содержат только код код уровня типов, т.е. только типы, без значений
+-------------------------
+//функция greet(name: string)
+type Greet = (name: string) => string
+
+//функция Log(message: string, userId?: string)
+type Log = (message: string, userId?: string) => void
+
+Теперь конкретизируем связи между сигнатурами вызовов и их реализациями (см. предыдущую сигнатуру)
+let log: Log = (
+    message,
+    userId = 'Not signed in'
+) => {
+    let time = new Date().toISOString()
+    console.log(time, message, userId)
+}
+
+Перегруженная функция - это функция с несколькими сигнатурами вызовов
+---------------------
+//Сокращенная сигнатура вызова
+type Log = (message: string, userId?: string) => void
+
+//Полная сигнатура вызова
+type Log = {
+  (message: string, userId?: string): void
+}
+
+Параметр обобщенного типа (дженерик?) - замещающий тип, используемый для применения ограничений на уровне типов в нескольких местах. Также известен как параметр полиморфного типа
+Здесь функция filter использует параметр обобщенного типа. Мы не знаем, каким будет этот тип в дальнейшем, поэтому TypeScript выводит тип T на основе типа, который мы передаем для array.:
+type Filter = {
+    <T>(array: T[], f: (item: T) => boolean): T[]
+}
+Для объявления обобщенных типов используются угловые скобки (<>) (воспринимайте их как ключевое слово type). Место размещения скобок определяет диапазон охватываемых значений (есть всего несколько мест, где вы их можете поставить).
+let filter: Filter = (array, f) =>
+ //...
+Если бы:
+type Filter<T> = {
+    (array: T[]), f: (item: T) => boolean): T[]
+}
+, то вызов был бы другим, с явной привязкой типа:
+let filger: Filter<number> = (array, f) => 
+//...
+
+filter и map в стандартной библиотеке
+-------------------------------------
+interface Array<T> {
+    filter(
+        callbackfn: (value: T, index: number, array: T[]) => any,
+        thisArg?: any
+    ): T[]
+    map<U>(
+        callbackfn: (value: T, index: number, array: T[]) => U,
+        thisArg?: any
+    ): U[]
+}
+Это значит, что filter и map являются функциями в массиве типа Т.
+
+Напишем функцию map, похожую на filter:
+function man<T, U>(array: T[], f: (item: T) => U): U[] {
+    let result = []
+    for (let i = 0; i < array.length; i++) {
+        rerult[i] = f(array[i])
+    }
+    return result
+}
+Нужны именно два обобщенных типа: Т для тира элементов, поступающих в массив, и U - для покидающих его. Мы передаем внутрь массив Т и отображающую функцию, которая преобразует Т в U. И в завершение возвращаем массив U.
+
+Псевдонимы обобщенных типов
+---------------------------
+type MyEvent<T> = {
+   target: T
+   type: string
+}
+
+type ButtonEvent = MyEvent<HTMLButtonElement>
+
+let myEvent: MyEvent<HTMLButtonElement | null> = {
+    target: document.querySelector('#myButton'),
+    type: 'click'
+}
+
+Разработка на основе типов - стиль программирования, где сначала прописываются сигнатуры типов, а значения подставляются позже
 
