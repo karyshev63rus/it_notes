@@ -172,4 +172,13 @@ nano nodesource_setup.sh
 sudo bash nodesource_setup.sh
 node -v
 
+Создание приложения react с помощью create-react-app
+-------------------------
+1-й вариант:
+	mkdir my_react_app
+	cd my_react_app
+	npx create-reac-app .
+2-й вариант:
+	npx create-react-app my_react_app
+
 
