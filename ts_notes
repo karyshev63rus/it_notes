@@ -425,3 +425,55 @@ let myEvent: MyEvent<HTMLButtonElement | null> = {
 
 Разработка на основе типов - стиль программирования, где сначала прописываются сигнатуры типов, а значения подставляются позже
 
+Глава 5. Классы и интерфейсы
+----------------------------
+При объявлении класса можно использовать ключевое слово implements, чтбы указать, что он соответствует определенному интерфейсу. Это удобный способ добавить ограничение на уровне типов, чтобы класс был реализован максимально близко к реализации.
+interface Animal {
+  eat(food: string): void
+  sleep(nours: number): void
+}
+
+class Cat implements Animal {
+  eat(food: string) {
+    console.info('Ate some', food, '. Mmm!')
+  }
+  sleep(hours: number) {
+    console.info('Slept for', hours, 'hours')
+  }
+}
+
+Создадим класс StringDatabase - простейшую базу данных:
+type State = {
+  [key: string]: string
+}
+
+class StringDatabase {
+  state: State = {}
+  get(key: string): string | null {
+    return key in this.state ? this.state[key] : null
+  } 
+  set(key: string, value: string): void {
+    this.state[key] = value
+  }
+  static from(state: State) {
+    let db = new StringDatabase
+    for (let key in state) {
+        db.set(key, state[key])
+    }
+    return db
+  }
+}
+Какие типы генерирует эта декларация класса? Тип экземпляра StringDatabase:
+interfase StringDatabase {
+  state: State
+  get(key: string): string | null
+  set(key: string, value: string): void
+}
+И тип конструктора StringDatabaseConstructor {
+  new(): StringDatabase
+  from(state: State): StringDatabase
+}
+
+Глава 6. Продвинутые типы
+-------------------------
+
