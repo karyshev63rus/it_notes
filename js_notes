@@ -164,6 +164,12 @@ npx create-next-app --help - какие опции доступны при со�
 
 npx create-next-app top-app --use-npm - указываем название проекта и определяем, что будет использовать именно npm, а не yarn
 
-
+Установка nodejs с использованием PPA (personal package archive)
+----------------
+cd ~
+curl -sL https://deb.nodesource.com/setup_16.x -o nodesource_setup.sh
+nano nodesource_setup.sh
+sudo bash nodesource_setup.sh
+node -v
 
 

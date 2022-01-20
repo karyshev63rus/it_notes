@@ -1030,3 +1030,16 @@ journalctl --vacuum-time=1years
 
 select-editor - команда для выбора редактора текствых файлов
 
+Установка nodejs с использованием PPA (personal package archive)
+----------------
+cd ~
+curl -sL https://deb.nodesource.com/setup_16.x -o nodesource_setup.sh
+nano nodesource_setup.sh
+sudo bash nodesource_setup.sh
+node -v
+
+
+
+
+
+
