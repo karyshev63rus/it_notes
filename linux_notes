@@ -1038,8 +1038,12 @@ nano nodesource_setup.sh
 sudo bash nodesource_setup.sh
 node -v
 
-
-
-
-
+Установка systemctl вместо init
+-------------------------------
+На новой машине оказалась другая система инициализации, поэтому нашел и проверил способ заменить ее на привычную:
+git clone https://github.com/DamionGans/ubuntu-wsl2-systemd-script.git
+cd ubuntu-wsl2-systemd-script/
+bash ubuntu-wsl2-systemd-script.sh
+Далее перезагружаем систему (в powershell вводим команду wsl --shutdown)
+Проверяем результат любой командой systemctl (можно просто ее набрать и посмотреть, вылезут ли ошибки, если нет, то все удалось)
 
