@@ -268,3 +268,51 @@ flex-direction
  max-content
 
 
+Препоцессоры Sass(иначе, scss)
+------------------------------
+Переменные в Sass:
+$color-gray: здесь пишем цвет в нужной нотации;
+$pad: 10px 25px;
+@import 'module';
+
+body {
+  background: $color-gray;
+  padding: $pad;
+}
+p.container {
+  @include border-radius(10px);
+  color: $color-gray;
+  margin: $pad;
+  a#home {
+    @extend %myCode;
+    text-decorate: none;
+    &:hover {
+      background: red;
+    }
+  }
+}
+
+классы указываются через точку, например: p.container
+идентификаторы, следовательно, через решетку, например: a#home
+обозначение псевдокласса hover: &:hover
+
+импортирование стилей
+создается файл с именем, например, _module.scss, и в нем пишем код, после чего импортируем в другой файл: @import 'module' (т.е. не указываем подчеркивания)
+
+миксины
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+    -moz-border-radius: $radius;
+     -ms-border-radius: $radius;
+         border-radius: $radius;
+}
+далее вызывается в каком-либо стиле так: @include border-radius(10px);
+
+расширение или наследование
+%myCode {
+  font-size: 20px;
+}
+далее вставляется в код так: @extend %myCode;
+
+математические операции
+
