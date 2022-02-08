@@ -146,6 +146,7 @@ nvm - менеджер версий NodeJS
 Установка для линукс (используем любую из команд)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+nvm list-remote - выведет доступные версии node в удаленном репо
 nmv install 12 - устанавливаем 12-ю версию nodejs (после этого автоматически происходит переключение на 12-ю версию)
 nvm use 14 - переключаемся 14-ю версию (предполагается, что она установлена на машину)
 
