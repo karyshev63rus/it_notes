@@ -130,7 +130,7 @@ window.addEventListener('DOMContentLoaded', function() {
 Скачивание и установка пакета nodejs
 ------------------------------------
 $ sudo apt-get install curl
-$ curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+$ curl -sL https://deb.nodesource.com/setup_17.x | sudo -E bash -
 $ sudo apt install -y nodejs
 
 При подключении эмулятора андроида к разработке вылезает ошибка отностительно adb (какой-то там андроидный бридж). Решить ее (одну из связанных с этим проблем) можно так:
