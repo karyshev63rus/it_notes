@@ -182,4 +182,7 @@ node -v
 2-й вариант:
 	npx create-react-app my_react_app
 
+Создание и настройка CRA c typescript
+-------------------------------------
+npx create-react-app <name of project> --template typescript
 
