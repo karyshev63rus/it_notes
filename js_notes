@@ -147,8 +147,10 @@ nvm - менеджер версий NodeJS
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 nvm list-remote - выведет доступные версии node в удаленном репо
-nmv install 12 - устанавливаем 12-ю версию nodejs (после этого автоматически происходит переключение на 12-ю версию)
+nmv ls - посмотреть список версий node, установленных на машине
+nvm install 12 - устанавливаем 12-ю версию nodejs (после этого автоматически происходит переключение на 12-ю версию)
 nvm use 14 - переключаемся 14-ю версию (предполагается, что она установлена на машину)
+nvm alias default 16 - устанавляем версию node по умолчанию
 
 Установка компилятора typescript
 --------------------------------
