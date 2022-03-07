@@ -950,6 +950,7 @@ crontab -e - делаем запись в планировщике cron
 * * * * * <full path to execution file, for example /home/mick/backup.sh> - скрипт будет выполняться каждую минуту
 crontab -l - смотрим, сохранена ли запись
 sudo systemctl start cron - не забыть запускать планировщик (а еще лучше, если установить его автоматический запуск при запуске ОС: sudo systemctl enable cron.service)
+https://crontab.guru - ресурс, где можно настроить нужную конфигурацию планировщика
 
 ch. 12 Сети
 -----------
