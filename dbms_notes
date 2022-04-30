@@ -151,3 +151,11 @@ sqlite> .schema users_customer - просмотр схемы таблицы
 
 sqlite> .exit - выход
 
+=================
+Установка и запуск DBeaver
+=================
+установка:
+wget -c https://dbeaver.io/files/dbeaver-ce_latest_amd64.deb
+sudo dpkg -i dbeaver-ce_latest_amd64.deb
+запуск:
+dbeaver-ce
