@@ -20,7 +20,7 @@ sudo apt-get --purge remove postgresql postgresql-12  postgresql-client  postgre
 5. GRANT ALL PRIVILEGES ON DATABASE <dbname> TO <dbusername>; - права админа БД
 6. \q - закрыть сессию
 7. данные о созданных базе и пользователе прописываем в файле # settings.py
-
+8. psql -h localhost -U user -d batabase - зайти как определенный пользователь в БД
 
 ПОЛЕЗНЫЕ КОМАНДЫ
 ----------------
