@@ -85,7 +85,9 @@ DATABASES = {
 команда позволяет войти в бд в контейнере докера:
 docker-compose exec db psql --username=<username of role> --dbname=<name of db>
 
-
+Ссылка на sql-скрипт для создания БД northwind
+---------------------
+https://github.com/EngineerSpock/postgres-course-ru/blob/master/01-Введение%20в%20SQL/00-fill_in_northwind.sql
 =====
 REDIS
 =====
