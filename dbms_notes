@@ -13,8 +13,8 @@ sudo apt-get --purge remove postgresql postgresql-12  postgresql-client  postgre
 
 СОЗДАЕМ БАЗУ ДАННЫХ на сервере postgresql, например, для подключения к ней django-проекта:
 -------------------
-1. sudo service postgresql start - запустить сервер с БД 
-2. sudo -i -u postgres psql - открыть сессию работы с БД 
+1. sudo service postgresql start - запустить сервер с БД (или sudo systemctl start postgresql)
+2. sudo -i -u postgres psql - открыть сессию работы с БД (можно и без -i)
 3. CREATE DATABASE <dbname>; - создать БД для проекта (здесь можно добавить OWNER postgres, и всё!)
 4. CREATE USER 	<dbusername> WITH PASSWORD '<password>'; - создать пользователя с паролем (кавычки обязательны)
 5. GRANT ALL PRIVILEGES ON DATABASE <dbname> TO <dbusername>; - права админа БД
