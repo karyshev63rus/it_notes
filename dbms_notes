@@ -156,12 +156,16 @@ sqlite> .exit - выход
 =================
 MONGODB
 =================
-Установка gui Compass в терминале:
+Установка и запуск gui Compass в терминале:
 1. wget https://downloads.mongodb.com/compass/mongodb-compass_1.26.1_amd64.deb
 2. sudo apt install ./mongodb-compass_1.26.1_amd64.deb
+Запуск:
+mongodb-compass
+
 Установка и запуск DBeaver
+--------------------------
 установка:
-wget -c https://dbeaver.io/files/dbeaver-ce_latest_amd64.deb
-sudo dpkg -i dbeaver-ce_latest_amd64.deb
+1. wget -c https://dbeaver.io/files/dbeaver-ce_latest_amd64.deb
+2. sudo dpkg -i dbeaver-ce_latest_amd64.deb
 запуск:
 dbeaver-ce
