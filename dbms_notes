@@ -154,8 +154,12 @@ sqlite> .schema users_customer - просмотр схемы таблицы
 sqlite> .exit - выход
 
 =================
-Установка и запуск DBeaver
+MONGODB
 =================
+Установка gui Compass в терминале:
+1. wget https://downloads.mongodb.com/compass/mongodb-compass_1.26.1_amd64.deb
+2. sudo apt install ./mongodb-compass_1.26.1_amd64.deb
+Установка и запуск DBeaver
 установка:
 wget -c https://dbeaver.io/files/dbeaver-ce_latest_amd64.deb
 sudo dpkg -i dbeaver-ce_latest_amd64.deb
