@@ -194,3 +194,29 @@ node -v
 -------------------------------------
 npx create-react-app <name of project> --template typescript
 
+Настройка ESLint
+----------------
+1. конфигурационный файл .eslintrc может иметь такой вид:
+{
+  "extends":  [ // наследуются исходные настройки eslint приложения
+    "react-app",
+    "react-app/jest"
+  ],
+  // "parser": "babel-eslint", // другой вариант наследования (разрешает import)
+  "rules": {
+    "no-console": "warn", // warning на использование console.log()
+    "prefer-const": "error", // error на использование let вместо const
+    "quotes": ["error", "single"], // error на использование двойных кавычек вместо одинарных
+    "indent": ["warn", 2], // warning на использование отступов, не равных 2-м пробелам
+    "max-len": ["error", {"code": 120}], // error на длину строки более 120 символов
+    "comma-dangle": ["error", "never"], // error на запятую последнего элемента массива
+    "semi": ["warn", "never"] // warning на наличие ';' (в ином случае используется "always") 
+  }
+}
+2. соответствующие команды, прописываемые в файле package.json:
+...
+scripts: {
+...
+"lint": "eslint -c .eslintrc --ext .js,.jsx ."
+"lint:fix": "npm run lint -- --fix"
+}
