@@ -220,3 +220,6 @@ scripts: {
 "lint": "eslint -c .eslintrc --ext .js,.jsx ."
 "lint:fix": "npm run lint -- --fix"
 }
+
+отладка приложения происходит по адресу chrome://inspect/#devices
+
