@@ -933,4 +933,14 @@ gitlab-runner ALL = (ALL) NOPASSWD: ALL
 Часто вылезает ошибка типа /bin/bash: line 121: rsync: command not found
 тут главно не забывать ставить / в конце адреса каталога, в который заливается проект, а также отключать у раннера предустановленные раннеры (Sharred runners -> Enable shared runners fro this project), поскольку они молча пытаются сделать лучше, а получается как ...
 
+Удаление gitlab-runner
+--------
+1. sudo apt remove gitlab-runner rm -rf /var/opt/gitlab
+2. sudo pkill -f gitlab
+3. rm -rf /opt/gitlab rm -rf /etc/gitlab rm -rf /var/opt/gitlab
+и еще:
+sudo gitlab-runner uninstall
+sudo rm -rf /usr/local/bin/gitlab-runner
+sudo userdel gitlab-runner
+sudo rm -rf /home/gitlab-runner/
 
