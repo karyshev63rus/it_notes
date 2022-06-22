@@ -944,3 +944,9 @@ sudo rm -rf /usr/local/bin/gitlab-runner
 sudo userdel gitlab-runner
 sudo rm -rf /home/gitlab-runner/
 
+Кратко
+------
+sudo apt install gitlab-runner
+sudo apt remove gitlab-runner
+sudo apt autoclean && sudo apt autoremove
+

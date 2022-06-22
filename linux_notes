@@ -99,6 +99,12 @@ spc testuser@ssh.tearnqa.ru:/home/testuser/test.txt .
 scp папка/файл пользователь@сервер:/папка - копирование на удаленную машину
 scp test.txt testuser@ssh.learnqa.ru:/home/tesuser/test3.txt
 
+Пример копирования каталога с ключами с удаленного сервера на локальный компьютер
+sudo scp -r -P 49382 root@ovz1.j44456941.m1yvm.vps.myjino.ru:/home/ssh /home/mick/sandbox
+
+Пример того же действия, но наоборот
+sudo scp -P 49323 -r /home/mick/sandbox/.ssh root@ovz2.j44456941.m940n.vps.myjino.ru:/root/
+
 sed - утилита для потокового изменения текста (потоковый текстовый редактор)
 sed 's/текст/новый_текст/' - замена первой подстрок
 echo 123123 | sed's/1/5/' выведет 523123
