@@ -950,3 +950,16 @@ sudo apt install gitlab-runner
 sudo apt remove gitlab-runner
 sudo apt autoclean && sudo apt autoremove
 
+Создание контейнера docker gitlab
+--------
+docker run -d --name gitlab-runner --restart always \
+  -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  gitlab/gitlab-runner:latest
+
+Дополнение в файл config.toml
+----------
+[[runners]]
+  [runners.docker]
+    volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
+
