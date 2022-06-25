@@ -1068,9 +1068,19 @@ bash ubuntu-wsl2-systemd-script.sh
 --------------------
 Шаг за шагом от генерации ключа до логина:
 
-1. Сгенерируйте ключ с помощью $ ssh-keygen -t rsa -b 2048 -vи, когда вас попросят ввести файл, в котором нужно сохранить ключ, введите my-certificateи, когда вас попросят ввести фразу-пароль, нажмите Enter (пустая фраза-пароль) и подтвердите, нажав Enter.
+1. Сгенерируйте ключ с помощью $ ssh-keygen -t rsa -b 2048 -v и, когда вас попросят ввести файл, в котором нужно сохранить ключ, введите my-certificate и, когда вас попросят ввести фразу-пароль, нажмите Enter (пустая фраза-пароль) и подтвердите, нажав Enter.
 2. Вы получите два сгенерированных файла, один из которых будет my-Certificate, а другой - my-certificate.pub, переименуйте my-Certificate в my-certificate.pem (после выполнения п.3), поэтому у вас будет два файла, my-certificate.pub и my- certificate.pem
-3. Загрузите публичный сертификат на сервер: ssh-copy-id -i ~/my-certificate.pub username@ip
+3. Загрузите публичный сертификат на сервер: ssh-copy-id -i ~/my-certificate.pub username@ip и опционально можно указать порт -p ...
 4. Сделайте файл .pem на вашем компьютере только для чтения sudo chmod 400 my-certificate.pem
 5. Зайдите в учетную запись, используя $ sudo ssh -i /path/to/my-certificate.pem user@ip
 
+Удаление сервиса systemd
+--------
+systemctl stop [servicename]
+systemctl disable [servicename]
+rm /etc/systemd/system/[servicename]
+rm /etc/systemd/system/[servicename] # and symlinks that might be related
+rm /usr/lib/systemd/system/[servicename] 
+rm /usr/lib/systemd/system/[servicename] # and symlinks that might be related
+systemctl daemon-reload
+systemctl reset-failed	
