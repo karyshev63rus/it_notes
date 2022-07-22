@@ -21,6 +21,10 @@ sudo apt-get --purge remove postgresql postgresql-12  postgresql-client  postgre
 6. \q - закрыть сессию
 7. данные о созданных базе и пользователе прописываем в файле # settings.py
 8. psql -h localhost -U user -d batabase - зайти как определенный пользователь в БД
+Команды для работы с пользователем внутри psql:
+alter <username> with login; - добавляем пользователю логин
+alter <username> with createdb; - добавляем пользователю возможность создавать БД
+(ссылка на такие команды https://phoenixnap.com/kb/postgres-create-user)
 
 ПОЛЕЗНЫЕ КОМАНДЫ
 ----------------
