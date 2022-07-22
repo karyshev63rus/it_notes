@@ -173,3 +173,8 @@ mongodb-compass
 2. sudo dpkg -i dbeaver-ce_latest_amd64.deb
 запуск:
 dbeaver-ce
+
+Команда для осуществления миграции при использовании ORM Prisma:
+-----------------------------------
+docker-compose -f docker-compose.dev.yml exec -T back npx prisma migrate dev --name init
+
