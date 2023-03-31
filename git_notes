@@ -995,3 +995,8 @@ gitlab-runner unregister --name <name of runner>
 --------
 gitlab-runner verify --delete
 
+Откат к одному из предыдущих коммитов и создание от него ветки
+--------
+git checkout <хэш коммита>
+git switch -c <название ветки>
+в противном случае можно сделать git switch и перейти на предыдущую ветку
