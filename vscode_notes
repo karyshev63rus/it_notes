@@ -9,3 +9,17 @@ code runner - плагин, который выводит на панель кн
 
 Если кнопка не запускает скрипт со связанными с ним файлами (например, файлом логов), то в настройках Параметров вводим code runner и ставим галку на опции Code-runner: File Directory As CWD
 
+Themes for VSCode
+-----------------
+Bearded Theme:
+  Coffe
+  Monocai Metallian
+  Monocai Stone
+  Oceanic
+  Solarized
+  beautiful
+  HC Brewing Storm
+  HC Wonderland Wood
+
+Community:
+  Material Theme
