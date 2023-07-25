@@ -480,3 +480,6 @@ interfase StringDatabase {
 
 отладка приложения происходит по адресу chrome://inspect/#devices
 
+tsc --t ES5 main - компиляция файла main в js-стандарт ES5
+
+
